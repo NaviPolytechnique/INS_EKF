@@ -8,6 +8,11 @@
 
 #include "EKF.h"
 
+#define PI 3,141592
+#define TODEG 57.295791
+
+
+
 typedef Eigen::Matrix<float,10,1> Vector10f;
 typedef Eigen::Matrix<float, 10, 10> Matrix10f;
 
@@ -43,10 +48,10 @@ void EKF::build_jacobian_matrix(Eigen::Vector3f* acc, Eigen::Vector3f* gyro){
     J(3,8)  =  2*dt*(-X(8)*(*acc)(0)+X(7)*(*acc)(1)+X(6)*(*acc)(2));
     J(3,9)  =  2*dt*(-X(9)*(*acc)(0)-X(6)*(*acc)(1)+X(7)*(*acc)(2));
     J(4,6)  =   2*dt*(X(9)*(*acc)(0)+X(6)*(*acc)(1)-X(7)*(*acc)(2));
-    J(4,7)  =   2*dt*(X(8)*(*acc)(0)-X(1)*(*acc)(1)-X(6)*(*acc)(2));
+    J(4,7)  =   2*dt*(X(8)*(*acc)(0)-X(6)*(*acc)(1)-X(6)*(*acc)(2));
     J(4,8)  =   2*dt*(X(7)*(*acc)(0)+X(8)*(*acc)(1)+X(9)*(*acc)(2));
     J(4,9)  =   2*dt*(X(6)*(*acc)(0)-X(9)*(*acc)(1)+X(8)*(*acc)(2));
-    J(5,6)  =  2*dt*(-X(8)*(*acc)(0)+X(6)*(*acc)(1)+X(6)*(*acc)(2));
+    J(5,6)  =  2*dt*(-X(8)*(*acc)(0)+X(7)*(*acc)(1)+X(6)*(*acc)(2));
     J(5,7)  =   2*dt*(X(9)*(*acc)(0)+X(6)*(*acc)(1)-X(7)*(*acc)(2));
     J(5,8)  =  2*dt*(-X(6)*(*acc)(0)+X(9)*(*acc)(1)-X(8)*(*acc)(2));
     J(5,9)  =   2*dt*(X(7)*(*acc)(0)+X(8)*(*acc)(1)+X(9)*(*acc)(2));
@@ -57,17 +62,17 @@ void EKF::build_jacobian_matrix(Eigen::Vector3f* acc, Eigen::Vector3f* gyro){
     J(6,7)   =    -dt*(*gyro)(0)/2;
     J(6,8)   =    -dt*(*gyro)(1)/2;
     J(6,9)   =    -dt*(*gyro)(2)/2;
-    J(7,6)   =    -dt*(*gyro)(0)/2;
+    J(7,6)   =     dt*(*gyro)(0)/2;
     J(7,7)   =                   0;
     J(7,8)   =     dt*(*gyro)(2)/2;
-    J(7,9)   =     dt*(*gyro)(0)/2;
+    J(7,9)   =    -dt*(*gyro)(1)/2;
     J(8,6)   =     dt*(*gyro)(1)/2;
     J(8,7)   =    -dt*(*gyro)(2)/2;
     J(8,8)   =                   0;
     J(8,9)   =     dt*(*gyro)(0)/2;
     J(9,6)   =     dt*(*gyro)(2)/2;
     J(9,7)   =     dt*(*gyro)(1)/2;
-    J(9,8)   =     dt*(*gyro)(0)/2;
+    J(9,8)   =    -dt*(*gyro)(0)/2;
     J(9,9)   =                   0;
     
     for (int i=0; i<10; i++){
@@ -78,6 +83,14 @@ void EKF::build_jacobian_matrix(Eigen::Vector3f* acc, Eigen::Vector3f* gyro){
 
 
 
+Eigen::Vector3f EKF::toPRY(Vector10f vector){
+    float roll = TODEG*atan2(2*(vector(6)*vector(7)+vector(8)*vector(9)),1-2*(vector(7)*vector(7)+vector(8)*vector(8)));
+    float pitch = TODEG*asin(2*(vector(6)*vector(8)-vector(9)*vector(7)));
+    float yaw = TODEG*atan2(2*(vector(6)*vector(9)+vector(7)*vector(8)),1-2*(vector(8)*vector(8)+vector(9)*vector(9)));
+    
+    Eigen::Vector3f RPY(roll,pitch,yaw);
+    return RPY;
+}
 
 
 void EKF::predict(){

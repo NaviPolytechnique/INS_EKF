@@ -18,6 +18,8 @@
 #include <sstream>
 
 
+
+
 class GPS{
     
 public:
@@ -41,8 +43,19 @@ public:
     
    /* \brief Update the GPS position
     */
-    int update(Eigen::Vector3f*);
+    int update(Eigen::Vector3d*);
     
+    
+    
+    void toCartesian1(Eigen::Vector3d &source);
+    
+    
+
+    Eigen::Vector3d toCartesian2(Eigen::Vector3d source);
+
+    
+    
+    Eigen::Vector3d getPositionFromHome(Eigen::Vector3d*);
     
     
     
@@ -51,8 +64,9 @@ private:
     const std::string HOME_MARK = "$GPSI";
     const std::string LINE_MARK = "$GPS";
     std::ifstream gps_file;
-    Eigen::Vector3f HOME;
+    Eigen::Vector3d HOME;
     std::string line;
+    bool updated;
     
     
     

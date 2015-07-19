@@ -16,16 +16,15 @@
 #include "EKF.h"
 
 
-#define PI = 3,141592
-#define g = 9.81
 
 
 // Path to files
-const std::string acc_file_path    =   "/Users/louisfaury/Documents/C++/APM_LOG/test/acc.txt";
-const std::string gyro_file_path   =  "/Users/louisfaury/Documents/C++/APM_LOG/test/gyro.txt";
-const std::string gps_file_path    =   "/Users/louisfaury/Documents/C++/APM_LOG/test/gps.txt";
-const std::string mag_file_path    =   "/Users/louisfaury/Documents/C++/APM_LOG/test/mag.txt";
-const std::string to_log_file_path =   "/Users/louisfaury/Documents/C++/APM_LOG/test/log_out.txt";
+const std::string acc_file_path      =       "/Users/louisfaury/Documents/C++/APM_LOG/test/acc.txt";
+const std::string gyro_file_path     =      "/Users/louisfaury/Documents/C++/APM_LOG/test/gyro.txt";
+const std::string gps_file_path      =       "/Users/louisfaury/Documents/C++/APM_LOG/test/gps.txt";
+const std::string mag_file_path      =       "/Users/louisfaury/Documents/C++/APM_LOG/test/mag.txt";
+const std::string to_log_file_path   =   "/Users/louisfaury/Documents/C++/APM_LOG/test/log_out.txt";
+const std::string rpy_file_path      =       "/Users/louisfaury/Documents/C++/APM_LOG/test/rpy.txt";
 
 
 
@@ -33,6 +32,7 @@ const std::string to_log_file_path =   "/Users/louisfaury/Documents/C++/APM_LOG/
 int main(int argc, const char * argv[]) {
     
     std::ofstream to_log(to_log_file_path.c_str());
+    std::ofstream to_rpy(rpy_file_path.c_str());
     
     try {
         
@@ -67,18 +67,17 @@ int main(int argc, const char * argv[]) {
         
         
     // Reading line
-        Eigen::Vector3f acc_vector_buffer;
+      /*  Eigen::Vector3f acc_vector_buffer;
         Eigen::Vector3f gyro_vector_buffer;
         ekf.init_state_vector();
 
         while (!acc.line_end && !gyro.line_end){
             acc.getOutput(&acc_vector_buffer);
             acc.correctOutput(&acc_vector_buffer);
-            //std::cout << acc_vector_buffer.transpose() << std::endl;
             gyro.getOutput(&gyro_vector_buffer);
             gyro.correctOutput(&gyro_vector_buffer);
             //std::cout << gyro_vector_buffer(0) << std::endl;
-            usleep(10000);
+            //usleep(10000);
 
         
         
@@ -86,6 +85,19 @@ int main(int argc, const char * argv[]) {
             ekf.build_jacobian_matrix(&acc_vector_buffer, &gyro_vector_buffer);
             ekf.predict();
             to_log << ekf.get_state_vector().transpose() << std::endl;
+            to_rpy << (ekf.toPRY(ekf.get_state_vector())).transpose() << std::endl;
+            
+        }*/
+        
+        
+        
+        // Testing GPS to Cartesian
+        
+        Eigen::Vector3d gps_buffer_vector;
+        for(int i=0; i<100; ++i){
+            gps.update(&gps_buffer_vector);
+            Eigen::Vector3d gps_position_vector = gps.getPositionFromHome(&gps_buffer_vector);
+            std::cout << gps_position_vector.transpose() << std::endl;
         }
     }
     catch (std::exception const& e)
