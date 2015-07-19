@@ -89,6 +89,7 @@ protected:
     std::string OFFSET_MARK; // Offset mark for the setOffsets method
     std::string captor_id;
     std::string LINE_MARK; // Line mark for the getOutput method
+    int static counter = 0;
 
 };
 
