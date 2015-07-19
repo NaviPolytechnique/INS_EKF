@@ -16,6 +16,7 @@
 #include "/usr/include/Eigen/Dense"
 #include <exception>
 #include <sstream>
+#include "Captor.h"
 
 
 
@@ -58,6 +59,11 @@ public:
     Eigen::Vector3d getPositionFromHome(Eigen::Vector3d*);
     
     
+    bool isAvailable();
+    
+    static int counter;
+
+    
     
 private:
     
@@ -66,7 +72,7 @@ private:
     std::ifstream gps_file;
     Eigen::Vector3d HOME;
     std::string line;
-    bool updated;
+    bool available;
     
     
     

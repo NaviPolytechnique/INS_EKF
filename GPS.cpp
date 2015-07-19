@@ -15,6 +15,7 @@
 
 
 
+
 GPS::GPS(){
 }
 
@@ -91,6 +92,17 @@ Eigen::Vector3d GPS::getPositionFromHome(Eigen::Vector3d* source){
     Eigen::Vector3d ACTUAL = toCartesian2(*source);
     return ACTUAL-HOME_C;
 }
+
+
+
+bool GPS::isAvailable(){
+    if (counter%10 == 0) available=true;
+    else available=false;
+    return available;
+}
+
+
+
 
 
 
