@@ -18,6 +18,7 @@
 
 
 
+
 // Path to files
 const std::string acc_file_path      =       "/Users/louisfaury/Documents/C++/APM_LOG/test/acc.txt";
 const std::string gyro_file_path     =      "/Users/louisfaury/Documents/C++/APM_LOG/test/gyro.txt";
@@ -25,6 +26,13 @@ const std::string gps_file_path      =       "/Users/louisfaury/Documents/C++/AP
 const std::string mag_file_path      =       "/Users/louisfaury/Documents/C++/APM_LOG/test/mag.txt";
 const std::string to_log_file_path   =   "/Users/louisfaury/Documents/C++/APM_LOG/test/log_out.txt";
 const std::string rpy_file_path      =       "/Users/louisfaury/Documents/C++/APM_LOG/test/rpy.txt";
+
+
+
+// Initializing static elements
+int GPS::counter = 0;
+
+
 
 
 
@@ -64,11 +72,11 @@ int main(int argc, const char * argv[]) {
         else std::cout << "HOME updated" << std::endl;
         
         
-        
-        
     // Reading line
-      /*  Eigen::Vector3f acc_vector_buffer;
+        Eigen::Vector3f acc_vector_buffer;
         Eigen::Vector3f gyro_vector_buffer;
+        Eigen::Vector3d gps_buffer_vector;
+        Eigen::Vector3d gps_position_vector;
         ekf.init_state_vector();
 
         while (!acc.line_end && !gyro.line_end){
@@ -76,29 +84,32 @@ int main(int argc, const char * argv[]) {
             acc.correctOutput(&acc_vector_buffer);
             gyro.getOutput(&gyro_vector_buffer);
             gyro.correctOutput(&gyro_vector_buffer);
-            //std::cout << gyro_vector_buffer(0) << std::endl;
+            
             //usleep(10000);
-
-        
+            
         
             //Predicting state vector
             ekf.build_jacobian_matrix(&acc_vector_buffer, &gyro_vector_buffer);
             ekf.predict();
-            to_log << ekf.get_state_vector().transpose() << std::endl;
-            to_rpy << (ekf.toPRY(ekf.get_state_vector())).transpose() << std::endl;
+            //to_log << ekf.get_state_vector().transpose() << std::endl;
+            //to_rpy << (ekf.toPRY(ekf.get_state_vector())).transpose() << std::endl;
             
-        }*/
-        
-        
-        
-        // Testing GPS to Cartesian
-        
-        Eigen::Vector3d gps_buffer_vector;
-        for(int i=0; i<100; ++i){
-            gps.update(&gps_buffer_vector);
-            Eigen::Vector3d gps_position_vector = gps.getPositionFromHome(&gps_buffer_vector);
-            std::cout << gps_position_vector.transpose() << std::endl;
+            
+            
+            // Testing GPS to Cartesian
+            if (gps.isAvailable()){
+                gps.update(&gps_buffer_vector);
+                gps_position_vector = gps.getPositionFromHome(&gps_buffer_vector);
+                mag.update_correct();
+                std::cout << mag.getHeading(ekf.toPRY(ekf.get_state_vector())) << std::endl;
+            }
+            
         }
+        
+        
+        
+        
+
     }
     catch (std::exception const& e)
     { std::cout << e.what() <<  " file " << std::endl; }
