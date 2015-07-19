@@ -48,16 +48,17 @@ Eigen::Vector3f Captor::getOffsets() const{
 
 
 
-void Captor::getOutput(Eigen::Vector3f* acc_vector_buffer){
+void Captor::getOutput(Eigen::Vector3f* captor_vector_buffer){
     int count = 0;
     std::string::size_type sz;
     if (std::getline(captor_file,line)){
+        if (LINE_MARK == "$A") GPS::counter++;
         line_end = false;
             std::stringstream ss(line);
             while (getline(ss,line,',')){
                 if (line == LINE_MARK);
                 else {
-                    (*acc_vector_buffer)[count] = std::stof(line,&sz);
+                    (*captor_vector_buffer)[count] = std::stof(line,&sz);
                     count++;
                 }
             }
