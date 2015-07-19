@@ -9,12 +9,6 @@
 #include "GPS.h"
 
 
-#define PI 3,141592
-#define TODEG 57.295791
-#define RT 6371000
-
-
-
 GPS::GPS(){
 }
 
@@ -36,7 +30,7 @@ int GPS::setHome(){
         while (getline(ss,line,',')){
                 if (line == HOME_MARK);
                 else {
-                    HOME[count] = (std::stod(line,&sz));
+                    HOME[count] = (std::stof(line,&sz));
                     count++;
                 }
             }
@@ -48,15 +42,15 @@ int GPS::setHome(){
 
 
 
-int GPS::update(Eigen::Vector3d* gps_buffer){
+int GPS::update(Eigen::Vector3f* gps_buffer){
     int count = 0;
     std::string::size_type sz;
     if (std::getline(gps_file,line)){
         std::stringstream ss(line);
-        while (getline(ss,line,',') && count<3){
+        while (getline(ss,line,',')){
             if (line == LINE_MARK);
             else {
-                (*gps_buffer)[count] = std::stod(line,&sz);
+                (*gps_buffer)[count] = std::stof(line,&sz);
                 count++;
             }
         }
@@ -65,40 +59,6 @@ int GPS::update(Eigen::Vector3d* gps_buffer){
     std::cout << "Couldn't read from GPS" << std::endl;
     return 0;
 }
-
-
-
-
-void GPS::toCartesian1(Eigen::Vector3d &source){
-    source(0) = RT*source(1)*cos(source(0));
-    source(1) = RT*source(0)*cos(source(1));
-}
-
-
-Eigen::Vector3d GPS::toCartesian2(Eigen::Vector3d source){
-    Eigen::Vector3d result;
-    double x = RT*(source(1)/TODEG)*cos(source(0)/TODEG);
-    double y = RT*(source(0)/TODEG)*cos(source(1)/TODEG);
-    result << x,y,source(2);
-    return result;
-}
-
-
-
-
-Eigen::Vector3d GPS::getPositionFromHome(Eigen::Vector3d* source){
-    Eigen::Vector3d HOME_C = toCartesian2(HOME);
-    Eigen::Vector3d ACTUAL = toCartesian2(*source);
-    return ACTUAL-HOME_C;
-}
-
-
-
-
-
-
-
-
 
 
 

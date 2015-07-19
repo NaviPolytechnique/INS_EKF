@@ -13,7 +13,6 @@
 #include "/usr/include/Eigen/Dense"
 #include <iostream>
 #include <string>
-#include <cmath>
 
 
 class EKF{
@@ -40,11 +39,7 @@ public:
     
     void correct(); //TODO
     
-    Eigen::Vector3f toPRY(Vector10f vector);
-    
     ~EKF(); //TODO
-    
-    
     
 
     
@@ -56,7 +51,7 @@ private:
     
     Vector10f X; // The state vector
     Matrix10f J; // The jacobian Matrix for integration of inertial datas
-    const double dt = 0.02; // Samplimp time in seconds
+    const double dt = 0.05; // Samplimp time in seconds
     
     
     
