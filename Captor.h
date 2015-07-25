@@ -79,7 +79,7 @@ public:
     
     ~Captor();
     
-    bool line_end;
+    bool line_end = false;
     
     
 

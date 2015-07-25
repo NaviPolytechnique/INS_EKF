@@ -32,15 +32,52 @@ public:
     */
     void init_state_vector();
     
+    
+    
+   /* \brief Initalize the state_vector given an initial heading
+    * \brief Assume the IMU is on an even surface, with only a non zero heading
+    * \brief Allow the EKF to evolve in N/E frame
+    * \param heading (int)
+    */
+    void init_state_vector(double heading);
+    
+    
+    
+   /* \brief Return the state vector
+    */
     Vector10f get_state_vector();
     
+    
+   /* \brief Construct the jacobian matrix for the prediction step of the Kalman filter
+    * \param Pointer to a Vector3f (buffer for the acc)
+    * \param Pointer to a Vector3f (buffer for the gyro)
+    */
     void build_jacobian_matrix(Eigen::Vector3f*, Eigen::Vector3f*);
     
+    
+   /* \brief Prediction step for the EKF
+    */
     void predict(); //TODO
     
-    void correct(); //TODO
     
-    Eigen::Vector3f toPRY(Vector10f vector);
+    
+   /* TODO
+    */
+    void correct();
+    
+    
+    
+   /* \brief Converts the quaternion vector inside the state_vector into a Vector3f of PRY (Pitch, Roll, and Yaw) in RAD.
+    * \param The state vector
+    */
+    Eigen::Vector3f toRPY(Vector10f vector);
+    
+    
+    
+    
+    
+    
+    
     
     ~EKF(); //TODO
     
@@ -56,7 +93,7 @@ private:
     
     Vector10f X; // The state vector
     Matrix10f J; // The jacobian Matrix for integration of inertial datas
-    const double dt = 0.02; // Samplimp time in seconds
+    const double dt = 0.02; // Sampling time in seconds
     
     
     

@@ -20,6 +20,7 @@ typedef Eigen::Matrix<float, 10, 10> Matrix10f;
 EKF::EKF(){}
 
 
+
 void EKF::init_state_vector(){
     X << 0,0,0,0,0,0,1,0,0,0;
    // std::cout << X.transpose() << std::endl;
@@ -83,21 +84,34 @@ void EKF::build_jacobian_matrix(Eigen::Vector3f* acc, Eigen::Vector3f* gyro){
 
 
 
-Eigen::Vector3f EKF::toPRY(Vector10f vector){
-    float roll = TODEG*atan2(2*(vector(6)*vector(7)+vector(8)*vector(9)),1-2*(vector(7)*vector(7)+vector(8)*vector(8)));
-    float pitch = TODEG*asin(2*(vector(6)*vector(8)-vector(9)*vector(7)));
-    float yaw = TODEG*atan2(2*(vector(6)*vector(9)+vector(7)*vector(8)),1-2*(vector(8)*vector(8)+vector(9)*vector(9)));
+Eigen::Vector3f EKF::toRPY(Vector10f vector){
+    float roll  = atan2(2*(vector(6)*vector(7)+vector(8)*vector(9)),1-2*(vector(7)*vector(7)+vector(8)*vector(8)));
+    float pitch =                                                asin(2*(vector(6)*vector(8)-vector(9)*vector(7)));
+    float yaw   = atan2(2*(vector(6)*vector(9)+vector(7)*vector(8)),1-2*(vector(8)*vector(8)+vector(9)*vector(9)));
     
     Eigen::Vector3f RPY(roll,pitch,yaw);
     return RPY;
 }
 
 
+
 void EKF::predict(){
     X = J*X;
 }
-                   
-        
+
+
+
+void EKF::init_state_vector(double heading){
+    // We first calculate the quaternion linked with the heading
+    float q0 = cos(heading/2);
+    float q1 = 0;
+    float q2 = 0;
+    float q3 = sin(heading/2);
+    
+    X << 0,0,0,0,0,0,q0,q1,q2,q3;
+}
+
+
 
 
 

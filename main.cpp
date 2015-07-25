@@ -16,6 +16,8 @@
 #include "EKF.h"
 
 
+#define TODEG 57.295791
+#define TORAD 0.017453
 
 
 
@@ -30,7 +32,7 @@ const std::string rpy_file_path      =       "/Users/louisfaury/Documents/C++/AP
 
 
 // Initializing static elements
-int GPS::counter = 0;
+int GPS::counter = -1;
 
 
 
@@ -77,8 +79,14 @@ int main(int argc, const char * argv[]) {
         Eigen::Vector3f gyro_vector_buffer;
         Eigen::Vector3d gps_buffer_vector;
         Eigen::Vector3d gps_position_vector;
-        ekf.init_state_vector();
+        
+        mag.update_correct();
+        ekf.init_state_vector(mag.getHeading());
+        to_rpy << TODEG*(ekf.toRPY(ekf.get_state_vector())).transpose() << std::endl;
 
+
+        
+        
         while (!acc.line_end && !gyro.line_end){
             acc.getOutput(&acc_vector_buffer);
             acc.correctOutput(&acc_vector_buffer);
@@ -92,8 +100,7 @@ int main(int argc, const char * argv[]) {
             ekf.build_jacobian_matrix(&acc_vector_buffer, &gyro_vector_buffer);
             ekf.predict();
             //to_log << ekf.get_state_vector().transpose() << std::endl;
-            //to_rpy << (ekf.toPRY(ekf.get_state_vector())).transpose() << std::endl;
-            
+            to_rpy << TODEG*(ekf.toRPY(ekf.get_state_vector())).transpose() << std::endl;
             
             
             // Testing GPS to Cartesian
@@ -101,12 +108,13 @@ int main(int argc, const char * argv[]) {
                 gps.update(&gps_buffer_vector);
                 gps_position_vector = gps.getPositionFromHome(&gps_buffer_vector);
                 mag.update_correct();
-                std::cout << mag.getHeading(ekf.toPRY(ekf.get_state_vector())) << std::endl;
+               // to_log << TODEG*mag.getHeading(ekf.toRPY(ekf.get_state_vector())(1),ekf.toRPY(ekf.get_state_vector())(0)) << std::endl;
             }
             
         }
+
         
-        
+
         
         
 

@@ -25,12 +25,23 @@ public:
     
     
     
-   /* \brief Returns the inertial unit heading
+   /* \brief Returns the inertial unit heading in RAD
     * \brief Deprecated, we will eventually be using DCM Matrix method. 
-    * \param A 3 columns vector (actually we will be using only roll & pitch but to make it easier we take the whole PRY vector as argument)
+    * \param Ptich and roll
     */
-    int getHeading(Eigen::Vector3f PRY) const;
+    double getHeading(float,float) const;
     
+    
+    
+    
+    /* \brief Returns the inertial unit heading assuming that the IMU in on even surface
+     * \brief In RAD
+     */
+    double getHeading() const;
+    
+    
+    
+    double getHeading(const Eigen::Matrix3f &dcm_matrix);
     
     
     
@@ -52,7 +63,10 @@ public:
     void update_correct();
     
     
-    void printState();
+    void printState() const;
+    
+    
+    Eigen::Vector3i getState() const;
     
     
 private:
