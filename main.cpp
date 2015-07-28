@@ -31,6 +31,7 @@ const std::string rpy_file_path      =       "/Users/louisfaury/Documents/C++/AP
 
 
 
+
 // Initializing static elements
 int GPS::counter = -1;
 
@@ -56,14 +57,20 @@ int main(int argc, const char * argv[]) {
     
     
     
-    // Getting offset
+    // Getting offset and gain for accelerometer, gyroscope and magnetometer. Getting GPS HOME field.
         int ret = acc.initOffsets();
         if (ret != 1) std::cout << "Couldn't get acc offsets !" << std::endl;
         else std::cout << "Acc offsets updated" << std::endl;
-        
+        ret = acc.initGain();
+        if (ret != 1) std::cout << "Couldn't get acc gain !" << std::endl;
+        else std::cout << "Acc gain updated" << std::endl;
+
         ret = gyro.initOffsets();
         if (ret != 1) std::cout << "Couldn't get gyro offsets !" << std::endl;
         else std::cout << "Gyro offsets updated" << std::endl;
+        ret = gyro.initGain();
+        if (ret != 1) std::cout << "Couldn't get gyro gain !" << std::endl;
+        else std::cout << "Gyro gain updated" << std::endl;
         
         ret = mag.initOffsets();
         if (ret != 1) std::cout << "Couldn't get magnetometer offsets !" << std::endl;
@@ -72,6 +79,7 @@ int main(int argc, const char * argv[]) {
         ret = gps.setHome();
         if (ret != 1) std::cout << "Couldn't get HOME !" << std::endl;
         else std::cout << "HOME updated" << std::endl;
+        
         
         
     // Reading line
@@ -93,22 +101,23 @@ int main(int argc, const char * argv[]) {
             gyro.getOutput(&gyro_vector_buffer);
             gyro.correctOutput(&gyro_vector_buffer);
             
-            //usleep(10000);
             
         
             //Predicting state vector
-            ekf.build_jacobian_matrix(&acc_vector_buffer, &gyro_vector_buffer);
+            /*ekf.build_jacobian_matrix(&acc_vector_buffer, &gyro_vector_buffer);
             ekf.predict();
-            //to_log << ekf.get_state_vector().transpose() << std::endl;
-            to_rpy << TODEG*(ekf.toRPY(ekf.get_state_vector())).transpose() << std::endl;
+            to_rpy << TODEG*(ekf.getRPY()).transpose() << std::endl;*/
             
             
-            // Testing GPS to Cartesian
+            
+            // Testing GPS to Cartesian and magnetometer tilt correction
             if (gps.isAvailable()){
                 gps.update(&gps_buffer_vector);
-                gps_position_vector = gps.getPositionFromHome(&gps_buffer_vector);
-                mag.update_correct();
-               // to_log << TODEG*mag.getHeading(ekf.toRPY(ekf.get_state_vector())(1),ekf.toRPY(ekf.get_state_vector())(0)) << std::endl;
+                gps.calculatePositionFromHome(&gps_buffer_vector);
+                gps.actualizeInternDatas(&gps_buffer_vector);
+                //mag.update_correct();
+                //to_log << TODEG*mag.getHeading() << std::endl;
+                //to_log << TODEG*mag.getHeading((ekf.getRPY())(1),(ekf.getRPY())(0)) << std::endl;
             }
             
         }
