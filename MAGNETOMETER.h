@@ -21,10 +21,6 @@ public:
     MAGNETOMETER(const std::string, STYLE);
     
     
-    
-    
-    
-    
    /* \brief Returns the inertial unit heading in RAD
     * \brief Deprecated, we will eventually be using DCM Matrix method. 
     * \param Ptich and roll
@@ -41,26 +37,27 @@ public:
     
     
     
+    
+    /* TODO
+     */
     double getHeading(const Eigen::Matrix3f &dcm_matrix);
     
     
-    
-    
-   /* TODO
+
+   /* \brief Update magnetometer
     */
-   // int getHeading(Eigen::Matrix3f DCM);
-    
-    
-    
     void update();
     
     
-    
+    /* \brief Correct magnetometer (offsets)
+     */
     void correct();
     
     
-    
+    /* \brief Update and correct magnetometer (offsets)
+     */
     void update_correct();
+    
     
     
     void printState() const;
