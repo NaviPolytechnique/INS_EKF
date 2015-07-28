@@ -94,6 +94,16 @@ Eigen::Vector3f EKF::toRPY(Vector10f vector){
 }
 
 
+Eigen::Vector3f EKF::getRPY(){
+    float roll  = atan2(2*(X(6)*X(7)+X(8)*X(9)),1-2*(X(7)*X(7)+X(8)*X(8)));
+    float pitch =                            asin(2*(X(6)*X(8)-X(9)*X(7)));
+    float yaw   = atan2(2*(X(6)*X(9)+X(7)*X(8)),1-2*(X(8)*X(8)+X(9)*X(9)));
+    
+    Eigen::Vector3f RPY(roll,pitch,yaw);
+    return RPY;
+}
+
+
 
 void EKF::predict(){
     X = J*X;

@@ -73,6 +73,9 @@ public:
     Eigen::Vector3f toRPY(Vector10f vector);
     
     
+    Eigen::Vector3f getRPY();
+    
+    
     
     
     
