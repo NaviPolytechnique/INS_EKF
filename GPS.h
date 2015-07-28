@@ -47,23 +47,54 @@ public:
     int update(Eigen::Vector3d*);
     
     
-    
+   /* \brief Transform a lattitude longitude attitude data into local frame coordinates
+    * \param The LLA to transform
+    */
     void toCartesian1(Eigen::Vector3d &source);
     
     
-
+    /* \brief Returns from a lattitude longitude attitude data earth frame coordinates vector
+     * \param The LLA to transform
+     */
     Eigen::Vector3d toCartesian2(Eigen::Vector3d source);
 
     
     
+    /* \brief Returns from a lattitude longitude attitude data local frame coordinates vector
+     * \param The gps output you want to transform
+     */
     Eigen::Vector3d getPositionFromHome(Eigen::Vector3d*);
     
     
+    
+    /* \brief Calculate from a lattitude longitude attitude data  to local frame coordinates a vector  abd stores it into position_vector
+     * \param The gps output you want to transform
+     */
+    void calculatePositionFromHome(Eigen::Vector3d*);
+    
+    
+    
+   /* \brief Checks if GPS received available datas
+    */
     bool isAvailable();
     
-    static int counter;
-
     
+    
+   /* \brief Static object for counting acc. reads and pretend for GPS is isAvalaible()
+    */
+    static int counter;
+    
+    
+    
+    
+   /* \brief Store in a Vector3d the last gps update and the current_time 
+    * \param The buffer vector for GPS position
+    */
+    void actualizeInternDatas(Eigen::Vector3d*);
+    
+ 
+    
+    friend class GPS_Filter;
     
 private:
     
@@ -71,6 +102,13 @@ private:
     const std::string LINE_MARK = "$GPS";
     std::ifstream gps_file;
     Eigen::Vector3d HOME;
+    Eigen::Vector3d actual_position;
+    Eigen::Vector3d last_update;
+    double current_time;
+    double time_since_last_update;
+    double time_of_last_update;
+    double time_init;
+    Eigen::Vector3d ground_speed;
     std::string line;
     bool available;
     

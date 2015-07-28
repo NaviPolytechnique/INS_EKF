@@ -37,11 +37,16 @@ int GPS::setHome(){
         while (getline(ss,line,',')){
                 if (line == HOME_MARK);
                 else {
-                    HOME[count] = (std::stod(line,&sz));
-                    count++;
+                    if (count < 3) {
+                        HOME[count] = (std::stod(line,&sz));
+                        count++;
+                    }
+                    else time_init = std::stod(line,&sz)/1000;
                 }
             }
             //std::cout << HOME << std::endl;
+            last_update << 0,0,0;
+            time_of_last_update = time_init;
             return 1;
         }
     return -1;
@@ -54,11 +59,14 @@ int GPS::update(Eigen::Vector3d* gps_buffer){
     std::string::size_type sz;
     if (std::getline(gps_file,line)){
         std::stringstream ss(line);
-        while (getline(ss,line,',') && count<3){
+        while (getline(ss,line,',') && count<4){
             if (line == LINE_MARK);
             else {
-                (*gps_buffer)[count] = std::stod(line,&sz);
-                count++;
+                if (count < 3){
+                    (*gps_buffer)[count] = std::stod(line,&sz);
+                    count++;
+                }
+                else current_time = std::stod(line,&sz)/1000;
             }
         }
         return 1;
@@ -74,6 +82,8 @@ void GPS::toCartesian1(Eigen::Vector3d &source){
     source(0) = RT*source(1)*cos(source(0));
     source(1) = RT*source(0)*cos(source(1));
 }
+
+
 
 
 Eigen::Vector3d GPS::toCartesian2(Eigen::Vector3d source){
@@ -94,12 +104,37 @@ Eigen::Vector3d GPS::getPositionFromHome(Eigen::Vector3d* source){
 }
 
 
+void GPS::calculatePositionFromHome(Eigen::Vector3d* source){
+    Eigen::Vector3d HOME_C = toCartesian2(HOME);
+    Eigen::Vector3d ACTUAL = toCartesian2(*source);
+    actual_position = ACTUAL-HOME_C;
+}
+
+
 
 bool GPS::isAvailable(){
     if (counter%10 == 0) available=true;
     else available=false;
     return available;
 }
+
+
+
+void GPS::actualizeInternDatas(Eigen::Vector3d* gps_buffer_vector){
+    time_since_last_update = current_time - time_of_last_update;
+    time_of_last_update = current_time;
+    //std::cout << time_since_last_update << std::endl;
+    for (int i=0; i<3; i++){
+    ground_speed(i) = (actual_position(i)-last_update(i))/time_since_last_update;
+    }
+    //std::cout << ground_speed.transpose() << std::endl;
+    last_update = actual_position;
+}
+
+
+
+
+
 
 
 
