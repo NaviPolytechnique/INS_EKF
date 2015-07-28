@@ -47,6 +47,11 @@ Eigen::Vector3f Captor::getOffsets() const{
 }
 
 
+int Captor::initGain(){
+    captor_gain << 1,1,1;
+    return 1;
+}
+
 
 void Captor::getOutput(Eigen::Vector3f* captor_vector_buffer){
     int count = 0;
@@ -75,6 +80,9 @@ void Captor::getOutput(Eigen::Vector3f* captor_vector_buffer){
 
 void Captor::correctOutput(Eigen::Vector3f* captor_buffer){
     (*captor_buffer) -= captor_offsets;
+    for (int i=0; i<3; ++i){
+        (*captor_buffer)(i) *= captor_gain(i);
+    }
 }
 
 
