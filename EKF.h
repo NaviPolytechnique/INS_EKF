@@ -14,17 +14,28 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include "GPS_Filter.h"
+#include "ACCELEROMETER.h"
+#include "GYRO.h"
 
 
 class EKF{
     
-    typedef Eigen::Matrix<float,10,1> Vector10f;
-    typedef Eigen::Matrix<float, 10, 10> Matrix10f;
+    typedef Eigen::Matrix<float,16,1> Vector16f;
+    typedef Eigen::Matrix<float, 16, 16> Matrix16f;
     
 public:
     
     
     EKF();
+    
+    
+   /* Constructor of the class. 
+    * \param A pointer to a GPS_Filter Object - used for actualizing the general filter
+    */
+    EKF(GPS_Filter*,ACCELEROMETER*,GYRO*);
+    
+    
     
    /* \brief Initialize the state vector
     * \brief WARNING : For now, initialize in the inertial frame
@@ -45,7 +56,7 @@ public:
     
    /* \brief Return the state vector
     */
-    Vector10f get_state_vector();
+    Vector16f get_state_vector();
     
     
    /* \brief Construct the jacobian matrix for the prediction step of the Kalman filter
@@ -55,9 +66,11 @@ public:
     void build_jacobian_matrix(Eigen::Vector3f*, Eigen::Vector3f*);
     
     
+    
+    
    /* \brief Prediction step for the EKF
     */
-    void predict(); //TODO
+    void predict(); 
     
     
     
@@ -67,19 +80,35 @@ public:
     
     
     
-   /* \brief Converts the quaternion vector inside the state_vector into a Vector3f of PRY (Pitch, Roll, and Yaw) in RAD.
+   /* DEPRECATED
+    * \brief Converts the quaternion vector inside the state_vector into a Vector3f of PRY (Pitch, Roll, and Yaw) in RAD.
     * \param The state vector
     */
-    Eigen::Vector3f toRPY(Vector10f vector);
-    
-    
-    Eigen::Vector3f getRPY();
+    Eigen::Vector3f toRPY(Vector16f vector);
     
     
     
+   /* \brief Converts the quaternion vector inside the state_vector into a Vector3f of PRY (Pitch, Roll, and Yaw) in RAD and returns it in form of a Vector3f.
+    * \param none
+    */
+    Eigen::Vector3f getRPY() const;
     
     
     
+   /* \brief Return actual position from the Extended Kalman Filter
+    */
+    Eigen::Vector3f getActualPos() const;
+    
+    
+    
+   /* \brief Return actual position from the Extended Kalman Filter
+    */
+    Eigen::Vector3f getActualSpeed() const;
+    
+    
+   /* \brief Returns as a Vector6f the Offsets calculated by the Kalman filter
+    */
+    Vector6f getActualInertialOffsets() const;
     
     
     ~EKF(); //TODO
@@ -94,9 +123,27 @@ public:
     
 private:
     
-    Vector10f X; // The state vector
-    Matrix10f J; // The jacobian Matrix for integration of inertial datas
+    GPS_Filter* gps_filter;
+    ACCELEROMETER* acc;
+    GYRO* gyro;
+    
+    Vector16f _X; /* The state vector :                                                                                                                                 {pos_vector,
+         speed_vector,
+         quaternion_vector,
+         acc_bias_random_walk,
+         gyro_bias_random_walk,
+         acc_white_gaussian_noise,
+         gyro_white_gaussian_noise}*/
+    Matrix16f J; // The jacobian Matrix for integration of inertial datas // In Extended Kalman Filter, would be state matrix.
     const double dt = 0.02; // Sampling time in seconds
+    Matrix16f P_;  // P(k)+
+    Matrix16f _P;  // P(k)-
+    Matrix16f R;   // Covariance matrix for the measure noises
+    Matrix16f Q;   // Covariance matrix for the model noises
+    Eigen::Matrix3f H_GPS_POS;
+    Eigen::Matrix3f H_GPS_SPEED;
+    Eigen::Matrix3f H_MAG;
+    
     
     
     

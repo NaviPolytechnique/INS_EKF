@@ -13,23 +13,91 @@
 
 
 
-typedef Eigen::Matrix<float,10,1> Vector10f;
-typedef Eigen::Matrix<float, 10, 10> Matrix10f;
+typedef Eigen::Matrix<float,16,1> Vector16f;
+typedef Eigen::Matrix<float, 16, 16> Matrix16f;
 
 
-EKF::EKF(){}
-
-
-
-void EKF::init_state_vector(){
-    X << 0,0,0,0,0,0,1,0,0,0;
-   // std::cout << X.transpose() << std::endl;
+EKF::EKF(){
 }
 
 
 
-Vector10f EKF::get_state_vector(){
-    return X;
+EKF::EKF(GPS_Filter* gps_filter, ACCELEROMETER* acc, GYRO* gyro) : gps_filter(gps_filter), acc(acc), gyro(gyro) {
+    // Initialisation of state matrix J
+    J.setZero();
+    for (int i=0; i<16; i++){
+        J(i,i) += 1;
+    }
+    // Initialisation of _P
+    _P.setZero();
+    // Initialisation of P_
+    P_.setZero();
+    // Initialisation of Q // TO DO
+    Q.setZero();
+    Q(0,0) =  0.0001567;
+    Q(1,1) =  0.0001571;
+    Q(2,2) =  0.0001569;
+    Q(3,3) =  0.0001567;
+    Q(4,4) =  0.0001571;
+    Q(5,5) =  0.0001569;
+    Q(6,6) =  0.00002;
+    Q(7,7) =  0.00001;
+    Q(8,8) =  0.00002;
+    Q(9,9) =  0.00001;
+    Q(10,10) = 0.0023;
+    Q(11,11) = 0.0017;
+    Q(12,12) = 0.0027;
+    Q(13,13) = 0.0001;
+    Q(14,14) = 0.0001;
+    Q(15,15) = 0.0001;
+    // Initialisation of H_GPS_POS
+    H_GPS_POS.setZero();
+    for (int i=0; i<3; ++i){
+        H_GPS_POS(i) = 1;
+    }
+    // Initialisation of H_GPS_SPEED
+    H_GPS_SPEED.setZero();
+    for (int i=0; i<3; ++i){
+        H_GPS_SPEED(i) = 1;
+    }
+}
+
+
+
+void EKF::init_state_vector(){
+    _X.setZero();
+    _X(6) = 1;
+   // std::cout << X.transpose() << std::endl;
+    for (int i=0; i<3; ++i){
+        _X(10+i) = (acc->getOffsets())(i);
+    }
+    for (int i=0; i<3; ++i){
+        _X(12+i) = (gyro->getOffsets())(i);
+    }
+}
+
+
+
+void EKF::init_state_vector(double heading){
+    // We first calculate the quaternion linked with the heading
+    float q0 = cos(heading/2);
+    float q1 = 0;
+    float q2 = 0;
+    float q3 = sin(heading/2);
+    _X << 0,0,0,0,0,0,q0,q1,q2,q3,0,0,0,0,0,0;
+    // Then we replace the 0 values by the actual offsets values
+    for (int i=0; i<3; ++i){
+        _X(10+i) = (acc->getOffsets())(i);
+    }
+    for (int i=0; i<3; ++i){
+        _X(13+i) = (gyro->getOffsets())(i);
+    }
+}
+
+
+
+Vector16f EKF::get_state_vector(){
+    return _X;
 }
 
 
@@ -44,18 +112,18 @@ void EKF::build_jacobian_matrix(Eigen::Vector3f* acc, Eigen::Vector3f* gyro){
     }
     
     // Vitesse
-    J(3,6)  =   2*dt*(X(6)*(*acc)(0)-X(9)*(*acc)(1)+X(8)*(*acc)(2));
-    J(3,7)  =   2*dt*(X(7)*(*acc)(0)+X(8)*(*acc)(1)+X(9)*(*acc)(2));
-    J(3,8)  =  2*dt*(-X(8)*(*acc)(0)+X(7)*(*acc)(1)+X(6)*(*acc)(2));
-    J(3,9)  =  2*dt*(-X(9)*(*acc)(0)-X(6)*(*acc)(1)+X(7)*(*acc)(2));
-    J(4,6)  =   2*dt*(X(9)*(*acc)(0)+X(6)*(*acc)(1)-X(7)*(*acc)(2));
-    J(4,7)  =   2*dt*(X(8)*(*acc)(0)-X(6)*(*acc)(1)-X(6)*(*acc)(2));
-    J(4,8)  =   2*dt*(X(7)*(*acc)(0)+X(8)*(*acc)(1)+X(9)*(*acc)(2));
-    J(4,9)  =   2*dt*(X(6)*(*acc)(0)-X(9)*(*acc)(1)+X(8)*(*acc)(2));
-    J(5,6)  =  2*dt*(-X(8)*(*acc)(0)+X(7)*(*acc)(1)+X(6)*(*acc)(2));
-    J(5,7)  =   2*dt*(X(9)*(*acc)(0)+X(6)*(*acc)(1)-X(7)*(*acc)(2));
-    J(5,8)  =  2*dt*(-X(6)*(*acc)(0)+X(9)*(*acc)(1)-X(8)*(*acc)(2));
-    J(5,9)  =   2*dt*(X(7)*(*acc)(0)+X(8)*(*acc)(1)+X(9)*(*acc)(2));
+    J(3,6)  =   2*dt*(_X(6)*(*acc)(0)-_X(9)*(*acc)(1)+_X(8)*(*acc)(2));
+    J(3,7)  =   2*dt*(_X(7)*(*acc)(0)+_X(8)*(*acc)(1)+_X(9)*(*acc)(2));
+    J(3,8)  =  2*dt*(-_X(8)*(*acc)(0)+_X(7)*(*acc)(1)+_X(6)*(*acc)(2));
+    J(3,9)  =  2*dt*(-_X(9)*(*acc)(0)-_X(6)*(*acc)(1)+_X(7)*(*acc)(2));
+    J(4,6)  =   2*dt*(_X(9)*(*acc)(0)+_X(6)*(*acc)(1)-_X(7)*(*acc)(2));
+    J(4,7)  =   2*dt*(_X(8)*(*acc)(0)-_X(6)*(*acc)(1)-_X(6)*(*acc)(2));
+    J(4,8)  =   2*dt*(_X(7)*(*acc)(0)+_X(8)*(*acc)(1)+_X(9)*(*acc)(2));
+    J(4,9)  =   2*dt*(_X(6)*(*acc)(0)-_X(9)*(*acc)(1)+_X(8)*(*acc)(2));
+    J(5,6)  =  2*dt*(-_X(8)*(*acc)(0)+_X(7)*(*acc)(1)+_X(6)*(*acc)(2));
+    J(5,7)  =   2*dt*(_X(9)*(*acc)(0)+_X(6)*(*acc)(1)-_X(7)*(*acc)(2));
+    J(5,8)  =  2*dt*(-_X(6)*(*acc)(0)+_X(9)*(*acc)(1)-_X(8)*(*acc)(2));
+    J(5,9)  =   2*dt*(_X(7)*(*acc)(0)+_X(8)*(*acc)(1)+_X(9)*(*acc)(2));
     
     
     // Quaternion
@@ -76,15 +144,12 @@ void EKF::build_jacobian_matrix(Eigen::Vector3f* acc, Eigen::Vector3f* gyro){
     J(9,8)   =    -dt*(*gyro)(0)/2;
     J(9,9)   =                   0;
     
-    for (int i=0; i<10; i++){
-        J(i,i) += 1;
-    }
         
 }
 
 
 
-Eigen::Vector3f EKF::toRPY(Vector10f vector){
+Eigen::Vector3f EKF::toRPY(Vector16f vector){
     float roll  = atan2(2*(vector(6)*vector(7)+vector(8)*vector(9)),1-2*(vector(7)*vector(7)+vector(8)*vector(8)));
     float pitch =                                                asin(2*(vector(6)*vector(8)-vector(9)*vector(7)));
     float yaw   = atan2(2*(vector(6)*vector(9)+vector(7)*vector(8)),1-2*(vector(8)*vector(8)+vector(9)*vector(9)));
@@ -94,10 +159,11 @@ Eigen::Vector3f EKF::toRPY(Vector10f vector){
 }
 
 
-Eigen::Vector3f EKF::getRPY(){
-    float roll  = atan2(2*(X(6)*X(7)+X(8)*X(9)),1-2*(X(7)*X(7)+X(8)*X(8)));
-    float pitch =                            asin(2*(X(6)*X(8)-X(9)*X(7)));
-    float yaw   = atan2(2*(X(6)*X(9)+X(7)*X(8)),1-2*(X(8)*X(8)+X(9)*X(9)));
+
+Eigen::Vector3f EKF::getRPY() const{
+    float roll  = atan2(2*(_X(6)*_X(7)+_X(8)*_X(9)),1-2*(_X(7)*_X(7)+_X(8)*_X(8)));
+    float pitch =                            asin(2*(_X(6)*_X(8)-_X(9)*_X(7)));
+    float yaw   = atan2(2*(_X(6)*_X(9)+_X(7)*_X(8)),1-2*(_X(8)*_X(8)+_X(9)*_X(9)));
     
     Eigen::Vector3f RPY(roll,pitch,yaw);
     return RPY;
@@ -105,21 +171,43 @@ Eigen::Vector3f EKF::getRPY(){
 
 
 
+Eigen::Vector3f EKF::getActualPos() const{
+    Eigen::Vector3f result;
+    result << _X(0),_X(1),_X(2);
+    return result;
+}
+
+
+
+Eigen::Vector3f EKF::getActualSpeed() const{
+    Eigen::Vector3f result;
+    result << _X(3),_X(4),_X(5);
+    return result;
+}
+
+
+
+Vector6f EKF::getActualInertialOffsets() const{
+    Vector6f result;
+    result.setZero();
+    result << _X(10),_X(11),_X(12),_X(13),_X(14),_X(15);
+    return result;
+}
+
+
+
 void EKF::predict(){
-    X = J*X;
+    _X = J*_X;
+    _P = _P + (J*_P + (J*_P).transpose()+Q)*dt;
 }
 
 
-
-void EKF::init_state_vector(double heading){
-    // We first calculate the quaternion linked with the heading
-    float q0 = cos(heading/2);
-    float q1 = 0;
-    float q2 = 0;
-    float q3 = sin(heading/2);
+void EKF::correct(){
     
-    X << 0,0,0,0,0,0,q0,q1,q2,q3;
 }
+
+
+
 
 
 
