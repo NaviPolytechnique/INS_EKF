@@ -59,7 +59,8 @@ public:
     void update_correct();
     
     
-    
+   /* \brief Print the magnetometer state (magx,magy,magz)
+    */
     void printState() const;
     
     
