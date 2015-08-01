@@ -8,12 +8,12 @@
 CC = gcc
 CFLAGS = -v
 CXX = g++
-CXXFLAGS =  
+CXXFLAGS = -g
 
 
 # Compilation
-#
-main: EKF.o Captor.o ACCELEROMETER.o GYRO.o GPS.o MAGNETOMETER.o main.o
+# 
+main: EKF.o Captor.o ACCELEROMETER.o GYRO.o GPS_Filter.o GPS.o MAGNETOMETER.o main.o 
 	$(CXX) $^ -o main $(CXXFLAGS)
 
 %.o: %.cpp 
