@@ -25,6 +25,14 @@ class GPS{
     
 public:
     
+    // Enum for the mode the GPS would have automatically chosen given the available satelites. TO DO : Automatic detection of the style 
+    enum style{
+        NMEA,
+        UBLOX
+    };
+    
+    
+    
     GPS();
     
     
@@ -32,7 +40,7 @@ public:
     * \brief throw exception if file couldn't be opened
     * \param string of the gps file path
     */
-    GPS(std::string) throw(std::exception);
+    GPS(std::string,style) throw(std::exception);
     
     
     
@@ -80,11 +88,6 @@ public:
     
     
     
-   /* \brief Static object for counting acc. reads and pretend for GPS is isAvalaible()
-    */
-    static int counter;
-    
-    
     
     
    /* \brief Store in a Vector3d the last gps update and the current_time 
@@ -111,6 +114,7 @@ private:
     Eigen::Vector3d ground_speed;
     std::string line;
     bool available;
+    int time_scale; //Since the GPS can have to style of fonctionnement with two different time_scale
     
     
     
