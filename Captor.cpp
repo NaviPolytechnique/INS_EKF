@@ -53,11 +53,11 @@ int Captor::initGain(){
 }
 
 
+
 void Captor::getOutput(Eigen::Vector3f* captor_vector_buffer){
     int count = 0;
     std::string::size_type sz;
     if (std::getline(captor_file,line)){
-        if (LINE_MARK == "$A") GPS::counter++;
         line_end = false;
             std::stringstream ss(line);
             while (getline(ss,line,',')){
@@ -74,7 +74,6 @@ void Captor::getOutput(Eigen::Vector3f* captor_vector_buffer){
         line_end = true;
     }
 }
-
 
 
 
