@@ -25,6 +25,10 @@ public:
     ACCELEROMETER(const std::string, STYLE);
     
 
+    
+    
+    
+
 };
 
 #endif /* defined(__INS_EKF__ACCELEROMETER__) */
