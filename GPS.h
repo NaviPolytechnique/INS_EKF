@@ -87,9 +87,6 @@ public:
     bool isAvailable();
     
     
-    
-    
-    
    /* \brief Store in a Vector3d the last gps update and the current_time 
     * \param The buffer vector for GPS position
     */

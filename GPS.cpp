@@ -97,7 +97,7 @@ Eigen::Vector3d GPS::toCartesian2(Eigen::Vector3d source){
     Eigen::Vector3d result;
     double x = RT*(source(1)/TODEG)*cos(source(0)/TODEG);
     double y = RT*(source(0)/TODEG)*cos(source(1)/TODEG);
-    result << x,y,source(2);
+    result << x,y,source(2); // Result is returned as EAST/NORTH/ALTITUDE
     return result;
 }
 
