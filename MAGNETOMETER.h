@@ -14,11 +14,19 @@
 
 class MAGNETOMETER : public Captor{
    
+    
+#define PI 3.14159265
+#define QRO_DECLINATION_RAD 0.094537
+#define HMC5843L_GAIN 660;
+    
+
 public:
     
     MAGNETOMETER();
     
+    
     MAGNETOMETER(const std::string, STYLE);
+    
     
     
    /* \brief Returns the inertial unit heading in RAD
@@ -29,24 +37,26 @@ public:
     
     
     
-    
     /* \brief Returns the inertial unit heading assuming that the IMU in on even surface
      * \brief In RAD
      */
     double getHeading() const;
     
     
-    
-    
-    /* TODO
-     */
-    double getHeading(const Eigen::Matrix3f &dcm_matrix);
-    
-    
 
    /* \brief Update magnetometer
     */
     void update();
+    
+    
+    /* \brief Initialize _earth_magnetic_field_even
+     */
+    void _init_earth_even_magnetic_field();
+    
+    
+    /* \brief Returns _earth_even_magnetic_field as a Vector3d
+     */
+    Eigen::Vector3d getEEMF();
     
     
     /* \brief Correct magnetometer (offsets)
@@ -63,13 +73,19 @@ public:
     */
     void printState() const;
     
-    
-    Eigen::Vector3i getState() const;
+
+   /* \brief Returns the state (mag_x,mag_y,mag_z)
+    */
+    Eigen::Vector3d getState() const;
     
     
 private:
     
-    int mag_x, mag_y, mag_z;
+    double mag_x, mag_y, mag_z;
+    double _declination;    // Declination angle with the North in RAD.
+                            // Need to be specified in preprocessor and modified in the initialiser
+    Eigen::Vector3d _earth_even_magnetic_field;     // The magnetic field measured by the magnetometer when on even surface
+                                                    // Is initialized when the first line is read
 
 };
 

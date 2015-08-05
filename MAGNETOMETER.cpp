@@ -9,9 +9,6 @@
 #include "MAGNETOMETER.h"
 
 
-#define TODEG 57.295791
-#define TORAD 0.017453
-
 
 
 MAGNETOMETER::MAGNETOMETER(){
@@ -23,6 +20,7 @@ MAGNETOMETER::MAGNETOMETER(const std::string mag_file_name, STYLE style) : Capto
     captor_id = "MAG";
     LINE_MARK = "$M";
     OFFSET_MARK = "$MO";
+    _declination = QRO_DECLINATION_RAD; // Setting the declination angle for the tests in Qro,Mexico
     
     if (style != COLD_START){
         // TODO
@@ -30,52 +28,40 @@ MAGNETOMETER::MAGNETOMETER(const std::string mag_file_name, STYLE style) : Capto
 }
 
 
-
-
-
-double MAGNETOMETER::getHeading(const Eigen::Matrix3f &dcm_matrix){
-    float headX;
-    float headY;
-    float cos_pitch = sqrt(1-(dcm_matrix(0)*dcm_matrix(0)));
-    float heading;
-    
-    // sinf(pitch) = - dcm_matrix(3,1)
-    // cosf(pitch)*sinf(roll) = - dcm_matrix(3,2)
-    // cosf(pitch)*cosf(roll) = - dcm_matrix(3,3)
-    
-    if (cos_pitch == 0.0f) {
-        // we are pointing straight up or down so don't update our
-        // heading using the compass. Wait for the next iteration when
-        // we hopefully will have valid values again.
-        return 0;
-    }
-    
-    // Tilt compensated magnetic field X component:
-    headX = mag_x*cos_pitch - mag_y*dcm_matrix(1)*dcm_matrix(0)/cos_pitch - mag_z*dcm_matrix(2)*dcm_matrix(1)/cos_pitch;
-    // Tilt compensated magnetic field Y component:
-    headY = mag_y*dcm_matrix(2)/cos_pitch - mag_z*dcm_matrix(1)/cos_pitch;
-    // magnetic heading
-    // 6/4/11 - added constrain to keep bad values from ruining DCM Yaw - Jason S.
-    heading = atan2(-headY,headX);
-    
-    return (double)heading;
-}
-
-
-
-
 double MAGNETOMETER::getHeading(float pitch, float roll) const{
-    int heading_x = mag_x*cos(pitch)-mag_y*sin(roll)*sin(pitch)-mag_z*cos(roll)*sin(pitch);
+    double heading_x = mag_x*cos(pitch)-mag_y*sin(roll)*sin(pitch)-mag_z*cos(roll)*sin(pitch);
     //int heading_x = mag_x*cos(PRY(1))-mag_y*sin(PRY(0))*sin(PRY(1))-mag_z*cos(PRY(0))*sin(PRY(1));
-    int heading_y = -mag_y*cos(roll)+mag_z*sin(roll);
+    double heading_y = -mag_y*cos(roll)+mag_z*sin(roll);
     //int heading_y = mag_y*cos(PRY(0))-mag_z*sin(PRY(0));
     
-    return (double)(atan2(-heading_y, heading_x));
+    double heading = (double) atan2(-heading_y, heading_x);
+     if( _declination > 0.0f )
+     {
+     heading = heading + _declination;
+     if (heading > PI)    // We normalize the angle, so that it is between -PI and +PI
+     heading -= (2.0f * PI);
+     else if (heading < -PI)
+     heading += (2.0f * PI);
+     }
+     
+     return heading;
+    
 }
+
 
 
 double MAGNETOMETER::getHeading() const{
-    return atan2(mag_y,mag_x);
+    double heading = (double) atan2(mag_y, mag_x);
+    if( _declination > 0.0f )
+    {
+        heading = heading + _declination;
+        if (heading > PI)    // We normalize the angle, so that it is between -PI and +PI
+            heading -= (2.0f * PI);
+        else if (heading < -PI)
+            heading += (2.0f * PI);
+    }
+    
+    return heading;
 }
 
 
@@ -91,13 +77,13 @@ void MAGNETOMETER::update(){
             else {
                 switch (count) {
                     case 0:
-                        mag_x = std::stof(line,&sz);
+                        mag_x = std::stod(line,&sz);
                         break;
                     case 1:
-                        mag_y = std::stof(line,&sz);
+                        mag_y = std::stod(line,&sz);
                         break;
                     case 2:
-                        mag_z = std::stof(line,&sz);
+                        mag_z = std::stod(line,&sz);
                         break;
                 }
                 count++;
@@ -113,10 +99,23 @@ void MAGNETOMETER::update(){
 }
 
 
+
+void MAGNETOMETER::_init_earth_even_magnetic_field(){
+    this->update_correct();
+    _earth_even_magnetic_field << mag_x,mag_y,mag_z;
+    //std::cout << _earth_even_magnetic_field.transpose() << std::endl;
+}
+
+
+Eigen::Vector3d MAGNETOMETER::getEEMF(){
+    return _earth_even_magnetic_field;
+}
+
+
 void MAGNETOMETER::correct(){
-    mag_x += (int)captor_offsets(0);
-    mag_y += (int)captor_offsets(1);
-    mag_z += (int)captor_offsets(2);
+    mag_x = (mag_x+captor_offsets(0))/HMC5843L_GAIN;
+    mag_y = (mag_y+captor_offsets(1))/HMC5843L_GAIN;
+    mag_z = (mag_z+captor_offsets(2))/HMC5843L_GAIN;
 }
 
 
@@ -127,13 +126,14 @@ void MAGNETOMETER::update_correct(){
 }
 
 
+
 void MAGNETOMETER::printState() const{
     std::cout << mag_x << "\t" << mag_y << "\t" << mag_z << std::endl;
 }
 
 
-Eigen::Vector3i MAGNETOMETER::getState() const{
-    Eigen::Vector3i result;
+Eigen::Vector3d MAGNETOMETER::getState() const{
+    Eigen::Vector3d result;
     result << mag_x, mag_y, mag_z;
     return result;
 }
