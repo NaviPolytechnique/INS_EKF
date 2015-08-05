@@ -137,6 +137,36 @@ Vector6f GPS_Filter::getState() const{
 }
 
 
+Eigen::Vector3f GPS_Filter::getActualSpeed(){
+    Eigen::Vector3f result;
+    for (int i=0; i<3; ++i){
+        result(i) = (getState())(i);
+    }
+    return result;
+}
+
+
+Eigen::Vector3f GPS_Filter::getActualPosition(){
+    Eigen::Vector3f result;
+    for (int i=0; i<3; ++i){
+        result(i) = (getState())(i+3);
+    }
+    return result;
+}
+
+
+Eigen::Matrix3f GPS_Filter::getSpeedCovMatrix(){
+    Eigen::Matrix3f result = P_.block<3,3>(0,0);
+    return result;
+}
+
+
+Eigen::Matrix3f GPS_Filter::getPositionCovMatrix(){
+    Eigen::Matrix3f result = P_.block<3,3>(3,3);
+    return result;
+}
+
+
 GPS_Filter::~GPS_Filter(){
     
 }

@@ -66,15 +66,34 @@ public:
     void adaptRMatrix();
     
     
-    
    /* \brief  Returns the actual position field in the forme of a Vector3f
     */
     Eigen::Vector3f getActualPosition() const;
     
     
-    /* \brief  Returns the actual state vector in the forme of a Vector6f
+    /* \brief  Returns the actual state vector in the form of a Vector6f
      */
     Vector6f getState() const;
+    
+    
+   /* \brief Returns the current speed in a Vector3f
+    */
+    Eigen::Vector3f getActualSpeed();
+    
+    
+    /* \brief Returns the current position in a Vector3f
+     */
+    Eigen::Vector3f getActualPosition();
+    
+    
+   /* \brief Return the speed part of P_ covariance matrix
+    */
+    Eigen::Matrix3f getSpeedCovMatrix();
+    
+    
+    /* \brief Return the pos part of P_ covariance matrix
+     */
+    Eigen::Matrix3f getPositionCovMatrix();
     
     
     ~GPS_Filter();
