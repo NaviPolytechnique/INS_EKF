@@ -47,6 +47,7 @@ Eigen::Vector3f Captor::getOffsets() const{
 }
 
 
+
 int Captor::initGain(){
     captor_gain << 1,1,1;
     return 1;
