@@ -17,12 +17,15 @@
 #include "GPS_Filter.h"
 #include "ACCELEROMETER.h"
 #include "GYRO.h"
+#include "MAGNETOMETER.h"
 
 
 class EKF{
     
     typedef Eigen::Matrix<float,16,1> Vector16f;
+    typedef Eigen::Matrix<float,9,1> Vector9f;
     typedef Eigen::Matrix<float, 16, 16> Matrix16f;
+    
     
 public:
     
@@ -33,7 +36,7 @@ public:
    /* Constructor of the class. 
     * \param A pointer to a GPS_Filter Object - used for actualizing the general filter
     */
-    EKF(GPS_Filter*,ACCELEROMETER*,GYRO*);
+    EKF(GPS_Filter*,ACCELEROMETER*,GYRO*,MAGNETOMETER*);
     
     
     
@@ -74,7 +77,7 @@ public:
     
     
     
-   /* TODO
+   /* \brief Correcting step for the EKF
     */
     void correct();
     
@@ -111,6 +114,11 @@ public:
     Vector6f getActualInertialOffsets() const;
     
     
+   /* Update the measure vector Z from the gps_filter datas 
+    */
+    void updateMeasure();
+    
+    
     ~EKF(); //TODO
     
     
@@ -126,23 +134,27 @@ private:
     GPS_Filter* gps_filter;
     ACCELEROMETER* acc;
     GYRO* gyro;
-    
-    Vector16f _X; /* The state vector :                                                                                                                                 {pos_vector,
-         speed_vector,
-         quaternion_vector,
-         acc_bias_random_walk,
-         gyro_bias_random_walk,
-         acc_white_gaussian_noise,
-         gyro_white_gaussian_noise}*/
+    MAGNETOMETER* mag;
+    /* The state vector :                                                                                                                                 {pos_vector,
+     speed_vector,
+     quaternion_vector,
+     acc_bias_random_walk,
+     gyro_bias_random_walk,
+     acc_white_gaussian_noise,
+     gyro_white_gaussian_noise}*/
+    Vector16f _X; // For X-
+    Vector16f X_; // For X+
+    Vector9f Z; // Measurement vector : Position, Speed and Magnetic Field
     Matrix16f J; // The jacobian Matrix for integration of inertial datas // In Extended Kalman Filter, would be state matrix.
     const double dt = 0.02; // Sampling time in seconds
     Matrix16f P_;  // P(k)+
     Matrix16f _P;  // P(k)-
     Matrix16f R;   // Covariance matrix for the measure noises
     Matrix16f Q;   // Covariance matrix for the model noises
-    Eigen::Matrix3f H_GPS_POS;
-    Eigen::Matrix3f H_GPS_SPEED;
-    Eigen::Matrix3f H_MAG;
+    Eigen::Matrix<float,16,3> K;
+    Eigen::Matrix<float,3,16> H_GPS_POS;
+    Eigen::Matrix<float,3,16> H_GPS_SPEED;
+    Eigen::Matrix<float,3,16> H_MAG;
     
     
     
