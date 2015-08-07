@@ -55,7 +55,7 @@ int main(int argc, const char * argv[]) {
         ACCELEROMETER acc(acc_file_path, Captor::COLD_START);
         GYRO gyro(gyro_file_path, Captor::COLD_START);
         MAGNETOMETER mag(mag_file_path, Captor::COLD_START);
-        GPS gps(gps_file_path,GPS::NMEA);
+        GPS gps(gps_file_path,GPS::UBLOX);
         GPS_Filter gps_filter(&gps);
         EKF ekf(&gps_filter,&acc,&gyro,&mag);
         
@@ -137,12 +137,11 @@ int main(int argc, const char * argv[]) {
             if (gps.isAvailable()){
                 // If yes, we first update the GPS filter
                 gps.calculatePositionFromHome(&gps_buffer_vector);
-                gps_out << gps.getPositionFromHome(&gps_buffer_vector).transpose() << std::endl;
+                gps_out << gps.getActualPosition().transpose() << std::endl;
                 gps.actualizeInternDatas(&gps_buffer_vector);
                 gps_filter.predict();
                 gps_filter.updateFilter();
                 gps_filter_out << gps_filter.getState().transpose() << std::endl;               // Storing operation for data exploitation
-                
                 // And we then correct the EKF filter by correcting in order position, speed and quaternion attitude vector
                 ekf.correct();
             }
