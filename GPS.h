@@ -17,6 +17,7 @@
 #include <exception>
 #include <sstream>
 #include "Captor.h"
+#include "util.h"
 
 
 
@@ -34,7 +35,7 @@ public:
     
     
     GPS();
-    
+
     
    /* \brief Constructor of GPS object
     * \brief throw exception if file couldn't be opened
@@ -53,30 +54,14 @@ public:
    /* \brief Update the GPS position
     */
     int update(Eigen::Vector3d*);
-    
-    
-   /* \brief Transform a lattitude longitude attitude data into local frame coordinates
-    * \param The LLA to transform
-    */
-    void toCartesian1(Eigen::Vector3d &source);
-    
-    
-    /* \brief Returns from a lattitude longitude attitude data earth frame coordinates vector
-     * \param The LLA to transform
-     */
-    Eigen::Vector3d toCartesian2(Eigen::Vector3d source);
 
     
     
-    /* \brief Returns from a lattitude longitude attitude data local frame coordinates vector
-     * \param The gps output you want to transform
-     */
-    Eigen::Vector3d getPositionFromHome(Eigen::Vector3d*);
-    
-    
-    
-    /* \brief Calculate from a lattitude longitude attitude data  to local frame coordinates a vector  abd stores it into position_vector
-     * \param The gps output you want to transform
+    /* \brief Transform LLA data to local frame coordinates and stores it into actual_position
+     * \brief To match with the IMU when we'll perform Kalman filtering, this function calculates distance on EAST NORTH and ALTITUDE axis from the HOME position
+     * \brief We consider the following formulas for calculating such distances
+     * \brief See source code for formulas
+     * \param The gps output you want to transform - the pointer to buffer of the gps datas
      */
     void calculatePositionFromHome(Eigen::Vector3d*);
     
@@ -88,11 +73,17 @@ public:
     
     
    /* \brief Store in a Vector3d the last gps update and the current_time 
-    * \param The buffer vector for GPS position
+    * \param Pointer to the buffer vector for GPS position
     */
     void actualizeInternDatas(Eigen::Vector3d*);
     
- 
+    
+    
+    
+   /* \brief Returns actual GPS Position from HOME as calculated in calculatePositionFromHome
+    */
+    Eigen::Vector3d getActualPosition();
+    
     
     friend class GPS_Filter;
     

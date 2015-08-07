@@ -9,11 +9,6 @@
 #include "GPS.h"
 
 
-#define PI 3,141592
-#define TODEG 57.295791
-#define RT 6371000
-
-
 
 
 GPS::GPS(){
@@ -86,35 +81,26 @@ int GPS::update(Eigen::Vector3d* gps_buffer){
 
 
 
-void GPS::toCartesian1(Eigen::Vector3d &source){
-    source(0) = RT*source(1)*cos(source(0));
-    source(1) = RT*source(0)*cos(source(1));
+void GPS::calculatePositionFromHome(Eigen::Vector3d *source){
+    // We first calculate the true distance from the earth's center
+    double _distance_from_earth_center = RT + (*source)(2);
+    // We then calculate the distance we are from HOME on the EAST axis
+    // x = (RT+h)*(actual_long - HOME_long)*cos(actual_lat)
+    double x = _distance_from_earth_center*(((*source)(1)-HOME(1))/TODEG)*cos((*source)(0)/TODEG);
+    // We then calculate the distance we are from HOME on the NORTH axis
+    // y = (RT+h)*(actual_lat - HOME_lat)
+    double y = _distance_from_earth_center*((*source)(0)-HOME(0))/TODEG;
+    // We then calculate the distance we are from HOME on the NORTH axis
+    // y = actual_altitude - HOME_altitude
+    double z = (*source)(2)-HOME(2);
+    // We eventually update the actual_position as EAST / NORTH / ALTITUDE 
+    actual_position << x,y,z;
 }
 
 
 
-Eigen::Vector3d GPS::toCartesian2(Eigen::Vector3d source){
-    Eigen::Vector3d result;
-    double x = RT*(source(1)/TODEG)*cos(source(0)/TODEG);
-    double y = RT*(source(0)/TODEG)*cos(source(1)/TODEG);
-    result << x,y,source(2); // Result is returned as EAST/NORTH/ALTITUDE
-    return result;
-}
-
-
-
-Eigen::Vector3d GPS::getPositionFromHome(Eigen::Vector3d* source){
-    Eigen::Vector3d HOME_C = toCartesian2(HOME);
-    Eigen::Vector3d ACTUAL = toCartesian2(*source);
-    return ACTUAL-HOME_C;
-}
-
-
-
-void GPS::calculatePositionFromHome(Eigen::Vector3d* source){
-    Eigen::Vector3d HOME_C = toCartesian2(HOME);
-    Eigen::Vector3d ACTUAL = toCartesian2(*source);
-    actual_position = ACTUAL-HOME_C;
+Eigen::Vector3d GPS::getActualPosition(){
+    return actual_position;
 }
 
 
@@ -126,19 +112,24 @@ bool GPS::isAvailable(){
 
 
 void GPS::actualizeInternDatas(Eigen::Vector3d* gps_buffer_vector){
+    // We update the time since the last update
     time_since_last_update = current_time - time_of_last_update;
+    
+    // Prevent the anomaly that happens when functionning in NMEA : multiple array with same GPS time are given out by GPS
+    // Thus we test if the time since the last update in non-zero
+    // either way the speed will not be valid.
     if (time_since_last_update != 0){
-    time_of_last_update = current_time;
-        //std::cout << time_since_last_update << std::endl;
+        time_of_last_update = current_time;
         for (int i=0; i<3; i++){
-        ground_speed(i) = (actual_position(i)-last_update(i))/time_since_last_update;
+        ground_speed(i) = (actual_position(i)-last_update(i))/time_since_last_update;   // Actualisation of the ground_speed
+                                                                                        // v = (actual_pos - last_pos) / dt
         }
-        //std::cout << ground_speed.transpose() << std::endl;
-        last_update = actual_position;
+        last_update = actual_position;                                                  // Update last_update
+                                                                                        // now that we've actualized the datas
     }
     else {
-        actual_position = last_update;
-        ground_speed *= 0;
+        actual_position = last_update;  // This is in case of NMEA mode as it appears it prints multiple data for same timing
+        ground_speed *= 0;              // We assume speed is then 0 and position stays the same
     }
     
 }
