@@ -11,14 +11,10 @@
 
 #include <stdio.h>
 #include "Captor.h"
+#include "util.h"
 
 class MAGNETOMETER : public Captor{
-   
-    
-#define PI 3.14159265
-#define QRO_DECLINATION_RAD 0.094537
-#define HMC5843L_GAIN 660;
-    
+       
 
 public:
     
@@ -30,8 +26,7 @@ public:
     
     
    /* \brief Returns the inertial unit heading in RAD
-    * \brief Deprecated, we will eventually be using DCM Matrix method. 
-    * \param Ptich and roll
+    * \param Roll and Pitch angle in RAD
     */
     double getHeading(float,float) const;
     
