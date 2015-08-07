@@ -15,9 +15,6 @@
 #include <iostream>
 #include "GPS.h"
 
-typedef Eigen::Matrix<float,6,6> Matrix6f;
-typedef Eigen::Matrix<float, 6, 1> Vector6f;
-typedef Eigen::Matrix<double,6,10> Matrix6_10d;
 
 class GPS_Filter{
     
