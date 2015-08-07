@@ -21,10 +21,7 @@
 
 
 class EKF{
-    
-    typedef Eigen::Matrix<float,16,1> Vector16f;
-    typedef Eigen::Matrix<float,9,1> Vector9f;
-    typedef Eigen::Matrix<float, 16, 16> Matrix16f;
+
     
     
 public:

@@ -8,13 +8,8 @@
 
 #include "EKF.h"
 
-#define PI 3,141592
-#define TODEG 57.295791
 
 
-
-typedef Eigen::Matrix<float,16,1> Vector16f;
-typedef Eigen::Matrix<float, 16, 16> Matrix16f;
 
 
 EKF::EKF(){
@@ -213,6 +208,7 @@ void EKF::updateMeasure(){
     for (int i=6; i<9;++i){
         Z(i) = (mag->getState())(i-6);    // Magnetic field
     }
+    //std::cout << Z.transpose() << std::endl;
 }
 
 
