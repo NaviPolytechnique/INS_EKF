@@ -21,7 +21,10 @@ MAGNETOMETER::MAGNETOMETER(const std::string mag_file_name, STYLE style) : Capto
     LINE_MARK = "$M";
     OFFSET_MARK = "$MO";
     _declination = QRO_DECLINATION_RAD; // Setting the declination angle for the tests in Qro,Mexico
-    
+    R.setZero();
+    R(0,0) = 0.0005;
+    R(1,1) = 0.0008;
+    R(2,2) = 0.002;
     if (style != COLD_START){
         // TODO
     }
@@ -136,6 +139,12 @@ Eigen::Vector3d MAGNETOMETER::getState() const{
     Eigen::Vector3d result;
     result << mag_x, mag_y, mag_z;
     return result;
+}
+
+
+
+Eigen::Matrix3f MAGNETOMETER::getMagCovarianceMatrix(){
+    return R;
 }
 
 

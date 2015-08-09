@@ -74,6 +74,13 @@ public:
     Eigen::Vector3d getState() const;
     
     
+    
+   /* \brief Returns the magnetometer noises' covariance matrix 
+    * which is initalised when constructing MAGNETOMETER mag.
+    */
+    Eigen::Matrix3f getMagCovarianceMatrix();
+    
+    
 private:
     
     double mag_x, mag_y, mag_z;
@@ -82,6 +89,7 @@ private:
     Eigen::Vector3d _earth_even_magnetic_field;     // The magnetic field measured by the magnetometer when on even surface
                                                     // Is initialized when the first line is read
 
+    Eigen::Matrix3f R; // Noise covariance matrix
 };
 
 #endif /* defined(__INS_EKF__MAGNETOMETER__) */
