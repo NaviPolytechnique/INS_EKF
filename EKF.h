@@ -22,6 +22,13 @@
 
 class EKF{
 
+    //The state vector :  {pos_vector      NORTH,EAST,ALTITUDE
+    //                     speed_vector    NORTH,EAST,ATLITUDE
+    //                     quaternion_vector,
+    //                     acc_bias_random_walk,
+    //                     gyro_bias_random_walk,
+    //                     acc_white_gaussian_noise,
+    //                     gyro_white_gaussian_noise}
     
     
 public:
@@ -95,15 +102,15 @@ public:
     
     
     
-   /* \brief Return actual position from the Extended Kalman Filter
+   /* \brief Return current position from the Extended Kalman Filter
     */
-    Eigen::Vector3f getActualPos() const;
+    Eigen::Vector3f getCurrentPos() const;
     
     
     
-   /* \brief Return actual position from the Extended Kalman Filter
+   /* \brief Return current position from the Extended Kalman Filter
     */
-    Eigen::Vector3f getActualSpeed() const;
+    Eigen::Vector3f getCurrentSpeed() const;
     
     
    /* \brief Returns as a Vector6f the Offsets calculated by the Kalman filter
@@ -116,8 +123,14 @@ public:
     void updateMeasure();
     
     
-    ~EKF(); //TODO
     
+   /* Computes the DCM matrix from the quaternion vector
+    */
+    void calculateDCM();
+    
+
+    
+    ~EKF();
     
     
 
@@ -132,18 +145,11 @@ private:
     ACCELEROMETER* acc;
     GYRO* gyro;
     MAGNETOMETER* mag;
-    /* The state vector :                                                                                                                                 {pos_vector,
-     speed_vector,
-     quaternion_vector,
-     acc_bias_random_walk,
-     gyro_bias_random_walk,
-     acc_white_gaussian_noise,
-     gyro_white_gaussian_noise}*/
     Vector16f _X; // For X-
     Vector16f X_; // For X+
     Vector9f Z; // Measurement vector : Position, Speed and Magnetic Field
     Matrix16f J; // The jacobian Matrix for integration of inertial datas // In Extended Kalman Filter, would be state matrix.
-    const double dt = 0.02; // Sampling time in seconds
+    double dt; // Sampling time in seconds
     Matrix16f P_;  // P(k)+
     Matrix16f _P;  // P(k)-
     Matrix16f R;   // Covariance matrix for the measure noises
@@ -152,8 +158,6 @@ private:
     Eigen::Matrix<float,3,16> H_GPS_POS;
     Eigen::Matrix<float,3,16> H_GPS_SPEED;
     Eigen::Matrix<float,3,16> H_MAG;
-    
-    
     
     
 };
