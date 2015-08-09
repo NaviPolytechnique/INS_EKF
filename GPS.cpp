@@ -83,18 +83,22 @@ int GPS::update(Eigen::Vector3d* gps_buffer){
 
 void GPS::calculatePositionFromHome(Eigen::Vector3d *source){
     // We first calculate the true distance from the earth's center
+    // in meter
     double _distance_from_earth_center = RT + (*source)(2);
     // We then calculate the distance we are from HOME on the EAST axis
     // x = (RT+h)*(actual_long - HOME_long)*cos(actual_lat)
+    // in meter
     double x = _distance_from_earth_center*(((*source)(1)-HOME(1))/TODEG)*cos((*source)(0)/TODEG);
     // We then calculate the distance we are from HOME on the NORTH axis
     // y = (RT+h)*(actual_lat - HOME_lat)
+    // in meter
     double y = _distance_from_earth_center*((*source)(0)-HOME(0))/TODEG;
-    // We then calculate the distance we are from HOME on the NORTH axis
-    // y = actual_altitude - HOME_altitude
+    // We then calculate the distance we are from HOME regarding altitude in meter
+    // z = actual_altitude - HOME_altitude
+    // in meter
     double z = (*source)(2)-HOME(2);
-    // We eventually update the actual_position as EAST / NORTH / ALTITUDE 
-    actual_position << x,y,z;
+    // We eventually update the actual_position as NORTH / EAST / ALTITUDE to match with IMU 
+    actual_position << y,x,z;
 }
 
 
