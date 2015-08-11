@@ -37,16 +37,16 @@ GPS_Filter::GPS_Filter(GPS* gps) : gps(gps){
     // Initalisation of P_
     P_.setZero();
     for (int i=0; i<6; i++){
-        P_(i,i) = 1;
+        P_(i,i) = 0.3;
     }
     // Initalisation of Q
     Q.setZero();
-    Q(0,0) = 0.1;
-    Q(1,1) = 0.2;
-    Q(2,2) = 0.21;
-    Q(3,3) = 0.23;
-    Q(4,4) = 0.26;
-    Q(5,5) = 0.3;
+    Q(0,0) = 0.01;
+    Q(1,1) = 0.02;
+    Q(2,2) = 0.021;
+    Q(3,3) = 0.023;
+    Q(4,4) = 0.026;
+    Q(5,5) = 0.03;
     
     // Initalisation of R
     R.setZero();
