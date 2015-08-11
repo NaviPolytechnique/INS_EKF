@@ -15,10 +15,9 @@
 #include </usr/include/Eigen/Dense>
 #include "EKF.h"
 #include "GPS_Filter.h"
+#include "util.h"
 
 
-#define TODEG 57.295791
-#define TORAD 0.017453
 
 
 
@@ -35,8 +34,20 @@ const std::string gps_out_path         =    "/Users/louisfaury/Documents/C++/APM
 const std::string gps_filter_out_path  = "/Users/louisfaury/Documents/C++/APM_LOG/test/gps_filter.txt";
 const std::string mag_out_path         =    "/Users/louisfaury/Documents/C++/APM_LOG/test/mag_out.txt";
 
+/*
+// Path to reading files
+const std::string acc_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/immobile2/acc.txt";
+const std::string gyro_file_path       =       "/Users/louisfaury/Documents/C++/APM_LOG/immobile2/gyro.txt";
+const std::string gps_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/immobile2/gps.txt";
+const std::string mag_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/immobile2/mag.txt";
 
-
+// Path to output file
+const std::string to_log_file_path     =    "/Users/louisfaury/Documents/C++/APM_LOG/test/log_out.txt";
+const std::string rpy_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/test/rpy.txt";
+const std::string gps_out_path         =    "/Users/louisfaury/Documents/C++/APM_LOG/test/gps_out.txt";
+const std::string gps_filter_out_path  = "/Users/louisfaury/Documents/C++/APM_LOG/test/gps_filter.txt";
+const std::string mag_out_path         =    "/Users/louisfaury/Documents/C++/APM_LOG/test/mag_out.txt";
+*/
 
 
 
@@ -109,7 +120,7 @@ int main(int argc, const char * argv[]) {
             
             // Reading from inertial captors and correcting the outputs
             acc.getOutput(&acc_vector_buffer);
-            acc.correctOutput(&acc_vector_buffer);
+            acc.correctOutput(&acc_vector_buffer, ekf.getDCM());
             gyro.getOutput(&gyro_vector_buffer);
             gyro.correctOutput(&gyro_vector_buffer);
             // Updating and correcting magnetometer
