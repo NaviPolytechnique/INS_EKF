@@ -16,6 +16,7 @@
 #define HMC5843L_GAIN 660;
 #define TODEG 57.295791
 #define RT 6371000
+#define GRAVITY_INT_QRO 9.7763286
 
 
 typedef Eigen::Matrix<float,6,6> Matrix6f;
