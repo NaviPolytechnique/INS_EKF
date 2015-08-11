@@ -60,6 +60,8 @@ EKF::EKF(GPS_Filter* gps_filter, ACCELEROMETER* acc, GYRO* gyro, MAGNETOMETER* m
     K.setZero();
     // Initialisation of Z
     Z.setZero();
+    // Initialisation of C
+    _C.setZero();
 }
 
 
@@ -74,6 +76,7 @@ void EKF::init_state_vector(){
     for (int i=0; i<3; ++i){
         X_(12+i) = (gyro->getOffsets())(i);
     }
+    calculateDCM();
 }
 
 
@@ -92,6 +95,7 @@ void EKF::init_state_vector(double heading){
     for (int i=0; i<3; ++i){
         X_(13+i) = (gyro->getOffsets())(i);
     }
+    calculateDCM();
 }
 
 
@@ -205,6 +209,9 @@ void EKF::predict(){
     _P = J*P_*(J.transpose())+Q;
     X_=_X;
     P_ = _P;
+    
+    // We also actualize the rotation matrix
+    calculateDCM();
 }
 
 
@@ -256,10 +263,10 @@ void EKF::correct(){
         Z_alias(i) = Z(i+6);
     }
     // Computing H_MAG
-    H_MAG(0,6)  =   -(X_(6)*(mag->getEEMF())(0)+X_(9)*(mag->getEEMF())(1)-X_(8)*(mag->getEEMF())(2));
-    H_MAG(0,7)  =   -(X_(7)*(mag->getEEMF())(0)+X_(8)*(mag->getEEMF())(1)+X_(9)*(mag->getEEMF())(2));
-    H_MAG(0,8)  =  -(-X_(8)*(mag->getEEMF())(0)+X_(7)*(mag->getEEMF())(1)-X_(6)*(mag->getEEMF())(2));
-    H_MAG(0,9)  =  -(-X_(9)*(mag->getEEMF())(0)+X_(6)*(mag->getEEMF())(1)+X_(7)*(mag->getEEMF())(2));
+    H_MAG(0,6)  =   (X_(6)*(mag->getEEMF())(0)+X_(9)*(mag->getEEMF())(1)-X_(8)*(mag->getEEMF())(2));
+    H_MAG(0,7)  =   (X_(7)*(mag->getEEMF())(0)+X_(8)*(mag->getEEMF())(1)+X_(9)*(mag->getEEMF())(2));
+    H_MAG(0,8)  =  (-X_(8)*(mag->getEEMF())(0)+X_(7)*(mag->getEEMF())(1)-X_(6)*(mag->getEEMF())(2));
+    H_MAG(0,9)  =  (-X_(9)*(mag->getEEMF())(0)+X_(6)*(mag->getEEMF())(1)+X_(7)*(mag->getEEMF())(2));
     H_MAG(1,6)  =   (-X_(9)*(mag->getEEMF())(0)+X_(6)*(mag->getEEMF())(1)-X_(7)*(mag->getEEMF())(2));
     H_MAG(1,7)  =   (X_(8)*(mag->getEEMF())(0)-X_(7)*(mag->getEEMF())(1)+X_(6)*(mag->getEEMF())(2));
     H_MAG(1,8)  =   (X_(7)*(mag->getEEMF())(0)+X_(8)*(mag->getEEMF())(1)+X_(9)*(mag->getEEMF())(2));
@@ -274,9 +281,29 @@ void EKF::correct(){
     K = _P*(H_MAG.transpose())*((H_MAG*_P*(H_MAG.transpose())+mag->getMagCovarianceMatrix()).inverse());     //Computes K // OTDO
     //P_ = _P - K*H_MAG*_P; // Computes P  TODO : need to understand why this affects so much the state vector correction for speed and position ..
     //Correct prediction
+    //std::cout << Z_alias.transpose() << std::endl;
+    //std::cout << (H_MAG*_X).transpose() << std::endl;
     for (int i=6; i<11; ++i){
         X_(i) = (_X + K*(Z_alias-H_MAG*_X))(i);
     }
+}
+
+
+void EKF::calculateDCM(){
+    _C(0,0) = X_(6)*X_(6) + X_(7)*X_(7) - X_(8)*X_(8) + X_(9)*X_(9);
+    _C(0,1) = 2*(X_(7)*X_(8) - X_(6)*X_(9));
+    _C(0,2) = 2*(X_(7)*X_(9) + X_(6)*X_(8));
+    _C(1,0) = 2*(X_(7)*X_(8) + X_(6)*X_(9));
+    _C(1,1) = X_(6)*X_(6) - X_(7)*X_(7) + X_(8)*X_(8) - X_(9)*X_(9);
+    _C(1,2) = 2*(X_(8)*X_(9) - X_(6)*X_(7));
+    _C(2,0) = 2*(X_(7)*X_(9) - X_(6)*X_(8));
+    _C(2,1) = 2*(X_(8)*X_(9) + X_(6)*X_(7));
+    _C(2,2) = X_(6)*X_(6) - X_(7)*X_(7) - X_(8)*X_(8) + X_(9)*X_(9);
+}
+
+
+Eigen::Matrix3f EKF::getDCM(){
+    return _C;
 }
 
 

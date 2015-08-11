@@ -128,6 +128,10 @@ public:
     */
     void calculateDCM();
     
+    
+   /* \brief Returns actual rotation matrix from inertial body to earth body frame
+    */
+    Eigen::Matrix3f getDCM();
 
     
     ~EKF();
@@ -158,6 +162,7 @@ private:
     Eigen::Matrix<float,3,16> H_GPS_POS;
     Eigen::Matrix<float,3,16> H_GPS_SPEED;
     Eigen::Matrix<float,3,16> H_MAG;
+    Eigen::Matrix3f _C; // DCM Matrix from inertial body to earth body
     
     
 };
