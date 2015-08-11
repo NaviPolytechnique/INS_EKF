@@ -24,3 +24,23 @@ ACCELEROMETER::ACCELEROMETER(const std::string acc_file_name, STYLE style) : Cap
     }
 }
 
+
+int ACCELEROMETER::initOffsets(){
+    int ret = Captor::initOffsets();
+    if (ret == 1){
+        captor_offsets[2] += GRAVITY_INT_QRO; // We assume here that calibration was performed on an even surface
+    }
+    return ret;
+}
+
+
+void ACCELEROMETER::correctOutput(Eigen::Vector3f* acc_buffer, Eigen::Matrix3f _C){
+    Captor::correctOutput(acc_buffer);
+    Eigen::Vector3f _gravity;
+    _gravity << 0,0,-GRAVITY_INT_QRO;
+    Eigen::Vector3f _rotate_gravity = (_C.transpose())*_gravity;
+    *acc_buffer -= _rotate_gravity;
+}
+
+
+
