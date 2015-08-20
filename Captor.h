@@ -46,7 +46,6 @@ public:
    /* \brief Store offset read in the reading file into a vector of float.
     * \brief Return 1 if succeeded in opening file and 0 if failed to detect the initial offset line
     * \brief Return -1 if couldn't get any line
-    * TODO : Implement Gauss-Newton method for better initialisation
     */
     int initOffsets();
     
@@ -55,7 +54,6 @@ public:
    /* \brief Initialize the captor's gain vector. 
     * \brief For now, we'll assume the gain vector starts at {1,1,1}
     * \brief Return 1 (success) for now 
-    * TODO : Implement Gauss-Newton method for better initialisation
     */
     int initGain();
 

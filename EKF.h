@@ -63,7 +63,7 @@ public:
     
    /* \brief Return the state vector
     */
-    Vector16f get_state_vector();
+    Vector16f get_state_vector() const;
     
     
    /* \brief Construct the jacobian matrix for the prediction step of the Kalman filter
@@ -108,7 +108,7 @@ public:
     
     
     
-   /* \brief Return current position from the Extended Kalman Filter
+   /* \brief Return current speed from the Extended Kalman Filter
     */
     Eigen::Vector3f getCurrentSpeed() const;
     

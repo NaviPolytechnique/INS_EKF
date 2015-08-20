@@ -44,11 +44,21 @@ public:
     
     
     
+    /* \brief Used for the predict step of the Kalman filter, using the speed calculated from the filter (coupled Kalman filtering)
+     * \brief Main method for the predict step.
+     * \param The Vector3f of the speed as calculated by the Kalman filter
+     * WARNING : Deprecated, accelerometer is too noisy
+     */
+    void predict(Eigen::Vector3f);
+    
+    
+    
    /* \brief Used for the update step of the Kalman filter
     * \brief Calculate Z vector from the gps datas
     */
     void updateMesure();
     
+
     
    /* \brief Used for the update step of the Kalman filter
     * \brief Main method for the update step
@@ -63,9 +73,21 @@ public:
     void adaptRMatrix();
     
     
-   /* \brief  Returns the actual position field in the forme of a Vector3f
+    
+   /* \brief Used to update speed of GPS_Filter by the one given by the filter
+    * \param The Vector3f of the speed as calculated by the Kalman filter
     */
-    Eigen::Vector3f getActualPosition() const;
+    void updateSpeedEKF(Eigen::Vector3f);
+    
+    
+   /* \brief  Returns the current position in a Vector3f
+    */
+    Eigen::Vector3f getCurrentPosition() const;
+    
+    
+    /* \brief Returns the current speed in a Vector3f
+     */
+    Eigen::Vector3f getCurrentSpeed() const;
     
     
     /* \brief  Returns the actual state vector in the form of a Vector6f
@@ -73,24 +95,15 @@ public:
     Vector6f getState() const;
     
     
-   /* \brief Returns the current speed in a Vector3f
-    */
-    Eigen::Vector3f getActualSpeed();
-    
-    
-    /* \brief Returns the current position in a Vector3f
-     */
-    Eigen::Vector3f getActualPosition();
-    
     
    /* \brief Return the speed part of P_ covariance matrix
     */
-    Eigen::Matrix3f getSpeedCovMatrix();
+    Eigen::Matrix3f getSpeedCovMatrix() const;
     
     
     /* \brief Return the pos part of P_ covariance matrix
      */
-    Eigen::Matrix3f getPositionCovMatrix();
+    Eigen::Matrix3f getPositionCovMatrix() const;
     
     
     ~GPS_Filter();
@@ -113,6 +126,7 @@ private:
     float dt;
     GPS* gps;
     Eigen::Vector3f actual_position;
+    Eigen::Vector3f actual_speed;
     Matrix6f C; // For R adaptative method
     Matrix6_10d mu;  // For R adpatative method
     

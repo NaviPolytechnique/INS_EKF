@@ -27,17 +27,20 @@ EKF::EKF(GPS_Filter* gps_filter, ACCELEROMETER* acc, GYRO* gyro, MAGNETOMETER* m
     for (int i=0; i<6; ++i){
         P_(i,i) = 0.5;
     }
-    for (int i=6; i<11 ; ++i){
+    for (int i=6; i<10 ; ++i){
         P_(i,i) = 0.00001;
     }
-    // Initialisation of Q // TO DO : Good parameters for Q
+    for (int i=10; i<15; ++i){
+        P_(i,i) = 0.000003;
+    }
+    // Initialisation of Q 
     Q.setZero();
-    Q(0,0) = 0.001;
-    Q(1,1) = 0.001;
-    Q(2,2) = 0.001;
-    Q(3,3) = 0.0003;
-    Q(4,4) = 0.0009;
-    Q(5,5) = 0.00005;
+    Q(0,0) = 0.00001;
+    Q(1,1) = 0.00001;
+    Q(2,2) = 0.000001;
+    Q(3,3) = 0.038;
+    Q(4,4) = 0.036;
+    Q(5,5) = 0.0031;
     Q(10,10) = 0.0023;
     Q(11,11) = 0.0017;
     Q(12,12) = 0.0027;
@@ -100,7 +103,7 @@ void EKF::init_state_vector(double heading){
 
 
 
-Vector16f EKF::get_state_vector(){
+Vector16f EKF::get_state_vector() const{
     return X_;
 }
 
