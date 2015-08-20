@@ -20,7 +20,6 @@
 
 
 
-
 // Path to reading files
 const std::string acc_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/test/acc.txt";
 const std::string gyro_file_path       =       "/Users/louisfaury/Documents/C++/APM_LOG/test/gyro.txt";
@@ -34,9 +33,10 @@ const std::string gps_out_path         =    "/Users/louisfaury/Documents/C++/APM
 const std::string gps_filter_out_path  = "/Users/louisfaury/Documents/C++/APM_LOG/test/gps_filter.txt";
 const std::string mag_out_path         =    "/Users/louisfaury/Documents/C++/APM_LOG/test/mag_out.txt";
 
-/*
-// Path to reading files
-const std::string acc_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/immobile2/acc.txt";
+
+
+// Path to reading files (immobile testing for magnetometer and quaternions)
+/*const std::string acc_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/immobile2/acc.txt";
 const std::string gyro_file_path       =       "/Users/louisfaury/Documents/C++/APM_LOG/immobile2/gyro.txt";
 const std::string gps_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/immobile2/gps.txt";
 const std::string mag_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/immobile2/mag.txt";
@@ -46,13 +46,13 @@ const std::string to_log_file_path     =    "/Users/louisfaury/Documents/C++/APM
 const std::string rpy_file_path        =        "/Users/louisfaury/Documents/C++/APM_LOG/test/rpy.txt";
 const std::string gps_out_path         =    "/Users/louisfaury/Documents/C++/APM_LOG/test/gps_out.txt";
 const std::string gps_filter_out_path  = "/Users/louisfaury/Documents/C++/APM_LOG/test/gps_filter.txt";
-const std::string mag_out_path         =    "/Users/louisfaury/Documents/C++/APM_LOG/test/mag_out.txt";
-*/
+const std::string mag_out_path         =    "/Users/louisfaury/Documents/C++/APM_LOG/test/mag_out.txt";*/
 
 
 
 
 int main(int argc, const char * argv[]) {
+    
     
     std::ofstream to_log(to_log_file_path.c_str());
     std::ofstream to_rpy(rpy_file_path.c_str());
@@ -81,7 +81,14 @@ int main(int argc, const char * argv[]) {
         ret = acc.initGain();
         if (ret != 1) std::cout << "Couldn't get acc gain !" << std::endl;
         else std::cout << "Acc gain updated" << std::endl;
-
+        
+        // Advanced calibration for acc (offset and gain)
+#ifdef ADCALIBRATION
+        ret = acc.performAdvancedAccCalibration();
+        if (ret !=1) std::cout << "Couldn't perform acc advanced calibration method" << std::endl;
+        else std::cout << "Acc advanced calibration performed" << std::endl;
+#endif
+        
         ret = gyro.initOffsets();
         if (ret != 1) std::cout << "Couldn't get gyro offsets !" << std::endl;
         else std::cout << "Gyro offsets updated" << std::endl;
@@ -113,7 +120,7 @@ int main(int argc, const char * argv[]) {
         ekf.init_state_vector(mag.getHeading());
         //ekf.init_state_vector();
         to_rpy << TODEG*(ekf.toRPY(ekf.get_state_vector())).transpose() << std::endl;           // Storing operation
-
+        
         
         
         while (!acc.line_end && !gyro.line_end){
@@ -155,14 +162,10 @@ int main(int argc, const char * argv[]) {
                 gps_filter_out << gps_filter.getState().transpose() << std::endl;               // Storing operation for data exploitation
                 // And we then correct the EKF filter by correcting in order position, speed and quaternion attitude vector
                 ekf.correct();
+                //gps_filter.updateSpeedEKF(ekf.getCurrentSpeed());
             }
             
         }
-
-        
-
-        
-        
 
     }
     catch (std::exception const& e)
