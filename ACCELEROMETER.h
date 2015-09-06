@@ -101,6 +101,14 @@ public:
     void correct_beta();
     
     
+    /* \brief We then replace the offsets and the gains by those calculated by the GN method.
+     * \brief Part of acc advanced calibration routine
+     */
+    void correct_GN();
+    
+    
+    
+    
 
     
     
@@ -108,8 +116,7 @@ public:
     
     
 private:
-    
-    std::string ADVANCED_OFFSET_MARK;
+
     
 #ifdef ADCALIBRATION
     Eigen::Matrix<float,6,3> _ad_acc_data;  // Matrix used to store the advanced acc calibration method readings
