@@ -281,7 +281,7 @@ void EKF::correct(){
     
     
     
-    K = _P*(H_MAG.transpose())*((H_MAG*_P*(H_MAG.transpose())+mag->getMagCovarianceMatrix()).inverse());     //Computes K // OTDO
+    K = _P*(H_MAG.transpose())*((H_MAG*_P*(H_MAG.transpose())+mag->getMagCovarianceMatrix()).inverse()); 
     //P_ = _P - K*H_MAG*_P; // Computes P  TODO : need to understand why this affects so much the state vector correction for speed and position ..
     //Correct prediction
     //std::cout << Z_alias.transpose() << std::endl;

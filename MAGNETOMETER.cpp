@@ -20,7 +20,7 @@ MAGNETOMETER::MAGNETOMETER(const std::string mag_file_name, STYLE style) : Capto
     captor_id = "MAG";
     LINE_MARK = "$M";
     OFFSET_MARK = "$MO";
-    _declination = QRO_DECLINATION_RAD; // Setting the declination angle for the tests in Qro,Mexico
+    _declination = SPQ_DECLINATION_RAD; // Setting the declination angle for the tests in Qro,Mexico
     R.setZero();
     R(0,0) = 0.0009;
     R(1,1) = 0.0004;
