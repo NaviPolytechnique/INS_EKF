@@ -81,7 +81,7 @@ void Captor::getOutput(Eigen::Vector3f* captor_vector_buffer){
 void Captor::correctOutput(Eigen::Vector3f* captor_buffer){
     (*captor_buffer) -= captor_offsets;
     for (int i=0; i<3; ++i){
-        (*captor_buffer)(i) *= captor_gain(i);
+        (*captor_buffer)(i) /= captor_gain(i);
     }
 }
 

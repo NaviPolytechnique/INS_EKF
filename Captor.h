@@ -101,6 +101,7 @@ protected:
     std::string OFFSET_MARK; // Offset mark for the setOffsets method
     std::string captor_id;
     std::string LINE_MARK; // Line mark for the getOutput method
+    std::string ADVANCED_OFFSET_MARK; // Only serves for acc (GN calibration method)
 
 };
 
