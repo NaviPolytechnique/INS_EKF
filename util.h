@@ -14,13 +14,13 @@
 
 
 #define PI 3.14159265
-#define QRO_DECLINATION_RAD 0.094537
+#define SPQ_DECLINATION_RAD 0.0052
 #define HMC5843L_GAIN 660;
 #define TODEG 57.295791
 #define RT 6371000
-#define GRAVITY_INT_QRO 9.7763286
+#define GRAVITY_INT_PARIS 9.80665
 
-//#define ADCALIBRATION   // To compile all the code used for acc advanced calibration
+#define ADCALIBRATION   // To compile all the code used for acc advanced calibration
                         // which take some non-negligable space (this is why we use pre-processors here)
 
 
