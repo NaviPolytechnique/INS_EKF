@@ -22,5 +22,7 @@ main: EKF.o Captor.o ACCELEROMETER.o GYRO.o GPS_Filter.o GPS.o MAGNETOMETER.o ma
 clean :
 	rm -rf  *.o
 
+#Test
+
 
   
