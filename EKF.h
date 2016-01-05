@@ -14,6 +14,14 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include "Drone.h"
+#include "Runnable.h"
+#include "Listener.h"
+#include "BlockingQueue.h"
+
+
+extern char* IMUport;
+
 
 
 class EKF{
@@ -24,7 +32,11 @@ class EKF{
 public:
     
     
-    EKF();
+    EKF(Drone* drone_);
+    
+    void start();
+    
+    void run();
     
    /* \brief Initialize the state vector
     * \brief WARNING : For now, initialize in the inertial frame
@@ -40,6 +52,8 @@ public:
     
     void correct(); //TODO
     
+    void interpret();
+    
     Eigen::Vector3f toPRY(Vector10f vector);
     
     ~EKF(); //TODO
@@ -54,9 +68,16 @@ public:
     
 private:
     
+    Drone* drone;
     Vector10f X; // The state vector
     Matrix10f J; // The jacobian Matrix for integration of inertial datas
     const double dt = 0.02; // Samplimp time in seconds
+    
+    //Pour la communication avec l'APM
+    Listener* IMUlistener;
+    BlockingQueue<char *>* received;
+    int working;
+
     
     
     
