@@ -13,7 +13,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "/usr/include/Eigen/Dense"
+#include "/usr/local/include/Eigen/Dense"
 #include <exception>
 #include <sstream>
 #include "Captor.h"

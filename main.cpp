@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Louis Faury. All rights reserved.
 //
 
-#include <iostream>
+/*#include <iostream>
 #include "ACCELEROMETER.h"
 #include "GYRO.h"
 #include "GPS.h"
@@ -178,4 +178,4 @@ int main(int argc, const char * argv[]) {
 
     
     return 0;
-}
+}*/

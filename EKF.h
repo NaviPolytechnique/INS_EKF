@@ -10,7 +10,7 @@
 #define __INS_EKF__EKF__
 
 #include <stdio.h>
-#include "/usr/include/Eigen/Dense"
+#include "/usr/local/include/Eigen/Dense"
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -29,12 +29,28 @@ class EKF{
     //                     gyro_bias_random_walk,
     //                     acc_white_gaussian_noise,
     //                     gyro_white_gaussian_noise}
+#include "Drone.h"
+#include "Runnable.h"
+#include "Listener.h"
+#include "BlockingQueue.h"
+
+
+extern char* IMUport;
+
+
+
+class EKF : public Runnable{
+>>>>>>> adaptation-au-drone
     
     
 public:
     
     
-    EKF();
+    EKF(Drone* drone_);
+    
+    void start();
+    
+    void* run();
     
     
    /* Constructor of the class. 
@@ -74,6 +90,12 @@ public:
     
     
     
+<<<<<<< HEAD
+=======
+    void interpret(char* msg);
+    
+    Eigen::Vector3f toPRY(Vector10f vector);
+>>>>>>> adaptation-au-drone
     
    /* \brief Prediction step for the EKF
     */
@@ -141,6 +163,17 @@ public:
     
     
     
+
+    Drone* drone;
+    Vector10f X; // The state vector
+    Matrix10f J; // The jacobian Matrix for integration of inertial datas
+    const double dt = 0.02; // Samplimp time in seconds
+    
+    //Pour la communication avec l'APM
+    Listener* IMUlistener;
+    BlockingQueue<char *>* received;
+    int working;
+
     
     
 private:
