@@ -75,7 +75,7 @@ void EKF::start(){
     drone->startThread(this, eKFthread);
 }
 
-<<<<<<< HEAD
+
 EKF::EKF(Drone* drone_): drone(drone_){
     IMUlistener = new Listener(IMUport, received);
     received = new BlockingQueue<char*>();
@@ -86,8 +86,6 @@ void EKF::start(){
     drone->startThread(this, eKFthread);
 }
 
-=======
->>>>>>> branche-pour-confirmer
 void* EKF::run(){
     //ébauche de protocole de communication
     while(true){
@@ -108,11 +106,7 @@ void* EKF::run(){
 void EKF::interpret(char* Msg){
     //interprétation du message reçu depuis l'APM
 }
-<<<<<<< HEAD
->>>>>>> adaptation-au-drone
 
-=======
->>>>>>> branche-pour-confirmer
 
 void EKF::init_state_vector(){
     X_.setZero();
@@ -358,16 +352,11 @@ Eigen::Matrix3f EKF::getDCM(){
 
 
     
-    EKF::~EKF(){
-<<<<<<< HEAD
-        delete drone;
-        delete IMUlistener;
-        delete received;
-=======
-	delete drone;
-	delete IMUlistener;
-	delete received;
->>>>>>> branche-pour-confirmer
+EKF::~EKF(){
+
+    delete drone;
+    delete IMUlistener;
+    delete received;
     }
     
 

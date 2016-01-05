@@ -18,7 +18,7 @@
 #include "ACCELEROMETER.h"
 #include "GYRO.h"
 #include "MAGNETOMETER.h"
-#include <drone.h>
+#include <Drone.h>
 #include <Runnable.h>
 #include <Listener.h>
 #include <BlockingQueue.h>
@@ -36,18 +36,11 @@ class EKF : public Runnable{
     //                     gyro_bias_random_walk,
     //                     acc_white_gaussian_noise,
     //                     gyro_white_gaussian_noise}
-#include "Drone.h"
-#include "Runnable.h"
-#include "Listener.h"
-#include "BlockingQueue.h"
-
-
-extern char* IMUport;
+    
 
 
 
 class EKF : public Runnable{
->>>>>>> adaptation-au-drone
     
     
 public:
@@ -102,13 +95,13 @@ public:
     void build_jacobian_matrix(Eigen::Vector3f*, Eigen::Vector3f*);
     
     
-    
-<<<<<<< HEAD
-=======
+
     void interpret(char* msg);
     
+    
+    
     Eigen::Vector3f toPRY(Vector10f vector);
->>>>>>> adaptation-au-drone
+
     
    /* \brief Prediction step for the EKF
     */
@@ -173,19 +166,6 @@ public:
     
     
 
-    
-    
-    
-
-    Drone* drone;
-    Vector10f X; // The state vector
-    Matrix10f J; // The jacobian Matrix for integration of inertial datas
-    const double dt = 0.02; // Samplimp time in seconds
-    
-    //Pour la communication avec l'APM
-    Listener* IMUlistener;
-    BlockingQueue<char *>* received;
-    int working;
 
     
     
