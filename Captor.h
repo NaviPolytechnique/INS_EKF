@@ -15,7 +15,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include </usr/include/Eigen/Dense>
+#include </usr/local/include/Eigen/Dense>
 #include "GPS.h"
 
 

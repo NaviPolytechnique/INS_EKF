@@ -18,7 +18,7 @@ typedef Eigen::Matrix<float, 10, 10> Matrix10f;
 
 
 EKF::EKF(Drone* drone_): drone(drone_){
-    IMUListener = new Listener(ImUport, rMsg);
+    IMUlistener = new Listener(IMUport, received);
     received = new BlockingQueue<char*>();
     
 }
@@ -27,7 +27,7 @@ void EKF::start(){
     drone->startThread(this, eKFthread);
 }
 
-void EKF::run(){
+void* EKF::run(){
     //ébauche de protocole de communication
     while(true){
         if(working == 0){

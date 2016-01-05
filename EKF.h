@@ -10,7 +10,7 @@
 #define __INS_EKF__EKF__
 
 #include <stdio.h>
-#include "/usr/include/Eigen/Dense"
+#include "/usr/local/include/Eigen/Dense"
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -36,7 +36,7 @@ public:
     
     void start();
     
-    void run();
+    void* run();
     
    /* \brief Initialize the state vector
     * \brief WARNING : For now, initialize in the inertial frame
@@ -52,7 +52,7 @@ public:
     
     void correct(); //TODO
     
-    void interpret();
+    void interpret(char* msg);
     
     Eigen::Vector3f toPRY(Vector10f vector);
     
