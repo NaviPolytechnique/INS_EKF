@@ -18,9 +18,16 @@
 #include "ACCELEROMETER.h"
 #include "GYRO.h"
 #include "MAGNETOMETER.h"
+#include <drone.h>
+#include <Runnable.h>
+#include <Listener.h>
+#include <BlockingQueue.h>
 
 
-class EKF{
+extern char* IMUport;
+
+
+class EKF : public Runnable{
 
     //The state vector :  {pos_vector      NORTH,EAST,ALTITUDE
     //                     speed_vector    NORTH,EAST,ATLITUDE
@@ -40,9 +47,15 @@ public:
    /* Constructor of the class. 
     * \param A pointer to a GPS_Filter Object - used for actualizing the general filter
     */
-    EKF(GPS_Filter*,ACCELEROMETER*,GYRO*,MAGNETOMETER*);
+    EKF(Drone*, GPS_Filter*,ACCELEROMETER*,GYRO*,MAGNETOMETER*);
     
+
+    void start();
     
+    void* run();
+    
+    void interpret(char* msg);
+
     
    /* \brief Initialize the state vector
     * \brief WARNING : For now, initialize in the inertial frame
@@ -145,6 +158,15 @@ public:
     
 private:
     
+    Drone* drone;
+
+
+    //Pour la communication avec l'APM
+    Listener* IMUlistener;
+    BlockingQueue<char *>* received;
+    int working;
+
+
     GPS_Filter* gps_filter;
     ACCELEROMETER* acc;
     GYRO* gyro;

@@ -17,7 +17,11 @@ EKF::EKF(){
 
 
 
-EKF::EKF(GPS_Filter* gps_filter, ACCELEROMETER* acc, GYRO* gyro, MAGNETOMETER* mag) : gps_filter(gps_filter), acc(acc), gyro(gyro), mag(mag) {
+EKF::EKF(Drone* drone_, GPS_Filter* gps_filter, ACCELEROMETER* acc, GYRO* gyro, MAGNETOMETER* mag) : gps_filter(gps_filter), acc(acc), gyro(gyro), mag(mag), drone(drone_) {
+
+    IMUlistener = new Listener(IMUport, received);
+    received = new BlockingQueue<char*>();
+
     // Initialisation of the sampling time rate
     dt = 0.02;
     // Initialisation of _P
@@ -67,7 +71,30 @@ EKF::EKF(GPS_Filter* gps_filter, ACCELEROMETER* acc, GYRO* gyro, MAGNETOMETER* m
     _C.setZero();
 }
 
+void EKF::start(){
+    drone->startThread(this, eKFthread);
+}
 
+void* EKF::run(){
+    //ébauche de protocole de communication
+    while(true){
+        if(working == 0){
+            drone->sendMsg(new Message(Message::SYSTEM, "Démarrage de l'IMU.", 0));
+            IMUlistener->write("Boot \n");
+            interpret(received->pop(10));
+            //mettre un timeout dans le pop
+            
+        }
+        else{
+            interpret(received->pop(100));
+            //ici le temps entre deux actualisations (pour détecter un plantage de la ardupilot)
+        }
+    }
+}
+
+void EKF::interpret(char* Msg){
+    //interprétation du message reçu depuis l'APM
+}
 
 void EKF::init_state_vector(){
     X_.setZero();
@@ -314,6 +341,9 @@ Eigen::Matrix3f EKF::getDCM(){
 
     
     EKF::~EKF(){
+	delete drone;
+	delete IMUlistener;
+	delete received;
     }
     
 
