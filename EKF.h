@@ -24,7 +24,7 @@ extern char* IMUport;
 
 
 
-class EKF{
+class EKF : public Runnable{
     
     typedef Eigen::Matrix<float,10,1> Vector10f;
     typedef Eigen::Matrix<float, 10, 10> Matrix10f;
